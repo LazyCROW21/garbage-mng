@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "465393088005",
+    "project_id": "garbage-mng",
+    "storage_bucket": "garbage-mng.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:465393088005:android:efc72b6a24b88ee0588e6c",
+        "android_client_info": {
+          "package_name": "com.garbage.garbage_mng"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "465393088005-sn92er58jdmu5a19n5me7dcgmp7h0gin.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALiIt_7qakKmOlaZcyNc4Hfz-M_zq7KQQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "465393088005-sn92er58jdmu5a19n5me7dcgmp7h0gin.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
