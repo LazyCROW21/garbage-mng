@@ -1,8 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/ui/widgets/account.dart';
+import 'package:garbage_mng/ui/widgets/store.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +23,15 @@ class HomePage extends StatelessWidget {
           bottomNavigationBar: Container(
             decoration: const BoxDecoration(
                 border: Border(top: BorderSide(color: Colors.grey))),
-            child: const TabBar(
+            child: TabBar(
+              onTap: (int index) {
+                setState(() {
+                  selectedIndex = index;
+                });
+              },
               labelColor: Colors.lightGreen,
               unselectedLabelColor: Colors.grey,
-              tabs: [
+              tabs: const [
                 Tab(icon: Icon(Icons.home)),
                 Tab(icon: Icon(Icons.local_grocery_store)),
                 Tab(icon: Icon(Icons.person)),
@@ -27,10 +41,13 @@ class HomePage extends StatelessWidget {
           body: const TabBarView(
             children: [
               Icon(Icons.home),
-              Icon(Icons.local_grocery_store),
+              Store(),
               Account(),
             ],
           ),
+          floatingActionButton: selectedIndex == 1 ? FloatingActionButton(child: const Icon(Icons.add), onPressed: () {
+            Navigator.of(context).pushNamed('/addWasteItem');
+          }) : null,
         ),
       ),
     );

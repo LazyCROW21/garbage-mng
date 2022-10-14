@@ -58,10 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: const [
                           Text(
                             'GarBage',
-                            style: TextStyle(
-                                color: Colors.lightGreen,
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.lightGreen, fontSize: 32, fontWeight: FontWeight.bold),
                           ),
                           Text('Don\'t Throw, Grow!')
                         ],
@@ -83,8 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         phone = phoneNumber;
                         await FirebaseAuth.instance.verifyPhoneNumber(
                           phoneNumber: phone,
-                          verificationCompleted:
-                              (PhoneAuthCredential credential) {},
+                          verificationCompleted: (PhoneAuthCredential credential) {},
                           verificationFailed: (FirebaseAuthException e) {},
                           codeSent: (String verificationId, int? resendToken) {
                             firebaseOTPVerificationId = verificationId;
@@ -102,9 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         try {
                           FirebaseAuth auth = FirebaseAuth.instance;
                           PhoneAuthCredential credential =
-                              PhoneAuthProvider.credential(
-                                  verificationId: firebaseOTPVerificationId,
-                                  smsCode: smsCode);
+                              PhoneAuthProvider.credential(verificationId: firebaseOTPVerificationId, smsCode: smsCode);
                           await auth.signInWithCredential(credential);
                           Navigator.of(context).pushReplacementNamed('/home');
                         } catch (e) {
@@ -185,8 +179,7 @@ class _StepOneState extends State<StepOne> {
                       underline: const SizedBox.shrink(),
                       value: countryCodeValue,
                       items: countryCodes
-                          .map((String countryCode) => DropdownMenuItem(
-                              value: countryCode, child: Text(countryCode)))
+                          .map((String countryCode) => DropdownMenuItem(value: countryCode, child: Text(countryCode)))
                           .toList(),
                       icon: const Icon(Icons.keyboard_arrow_down),
                       onChanged: (String? newValue) {
@@ -212,14 +205,12 @@ class _StepOneState extends State<StepOne> {
                 if (phone.length == 10) {
                   widget.onStepComplete(countryCodeValue + phone);
                 } else {
-                  const snackBar =
-                      SnackBar(content: Text('Enter a valid phone'));
+                  const snackBar = SnackBar(content: Text('Enter a valid phone'));
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               },
               style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
               ))),
               child: const Padding(
@@ -236,8 +227,7 @@ class _StepOneState extends State<StepOne> {
               textAlign: TextAlign.center,
               text: TextSpan(
                   text: 'New to GarBage? ',
-                  style: const TextStyle(
-                      color: Colors.black, fontFamily: 'Poppins', fontSize: 16),
+                  style: const TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 16),
                   children: <TextSpan>[
                     TextSpan(
                         recognizer: TapGestureRecognizer()

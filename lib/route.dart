@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/models/waste_item.dart';
+import 'package:garbage_mng/ui/screens/add_waste_item.dart';
 import 'package:garbage_mng/ui/screens/home.dart';
 import 'package:garbage_mng/ui/screens/login.dart';
 import 'package:garbage_mng/ui/screens/signup.dart';
@@ -15,6 +17,9 @@ class RouteGenerator {
         return MaterialPageRoute(builder: (_) => const SignUpScreen());
       case '/home':
         return MaterialPageRoute(builder: (_) => const HomePage());
+      case '/addWasteItem':
+        WasteItem? editItem = args as WasteItem?;
+        return MaterialPageRoute(builder: (_) => AddWasteItemScreen(editItem: editItem));
       // case '/second':
       // // Validation of correct data type
       //   if (args is String) {

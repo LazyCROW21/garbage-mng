@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
 
@@ -42,10 +43,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Text(
                   'Hello!',
                   textAlign: TextAlign.start,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32),
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 32),
                 ),
               ),
               const Padding(
@@ -53,10 +51,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Text(
                   'Let\'s Introduce',
                   textAlign: TextAlign.start,
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 24),
+                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 24),
                 ),
               ),
               Expanded(child: Container()),
@@ -88,6 +83,9 @@ class StepOne extends StatefulWidget {
 }
 
 class _StepOneState extends State<StepOne> {
+  TextEditingController fullNameInp = TextEditingController();
+  TextEditingController phoneInp = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -105,14 +103,16 @@ class _StepOneState extends State<StepOne> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const TextField(
-            decoration: InputDecoration(hintText: 'Full Name'),
+          TextField(
+            decoration: const InputDecoration(hintText: 'Full Name'),
+            controller: fullNameInp,
           ),
           const SizedBox(
             height: 16,
           ),
-          const TextField(
-            decoration: InputDecoration(hintText: 'Phone Number'),
+          TextField(
+            decoration: const InputDecoration(hintText: 'Phone Number'),
+            controller: phoneInp,
           ),
           const SizedBox(
             height: 32,
@@ -121,13 +121,12 @@ class _StepOneState extends State<StepOne> {
             children: [
               Expanded(
                 child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
                     style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.white),
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
+                        backgroundColor: MaterialStateProperty.all(Colors.white),
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                           side: const BorderSide(color: Colors.lightGreen),
                           borderRadius: BorderRadius.circular(18.0),
                         ))),
@@ -144,13 +143,15 @@ class _StepOneState extends State<StepOne> {
               ),
               Expanded(
                 child: ElevatedButton(
-                    onPressed: () {
-                      widget.onStepComplete();
+                    onPressed: () async {
+                      try {
+                        widget.onStepComplete();
+                      } on FirebaseAuthException catch (e) {
+                        print(e);
+                      }
                     },
                     style: ButtonStyle(
-                        shape:
-                            MaterialStateProperty.all<RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(18.0),
                     ))),
                     child: const Padding(
