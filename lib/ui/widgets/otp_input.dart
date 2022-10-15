@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class OTPInput extends StatefulWidget {
   final String phoneNumber;
+  final bool isLoading;
   final Function onClick;
-  const OTPInput({super.key, required this.phoneNumber, required this.onClick});
+  const OTPInput({super.key, required this.phoneNumber, required this.isLoading, required this.onClick});
 
   @override
   State<OTPInput> createState() => _OTPInputState();
@@ -172,25 +174,41 @@ class _OTPInputState extends State<OTPInput> {
           ),
           ElevatedButton(
               onPressed: () {
+                if (widget.isLoading) {
+                  return;
+                }
                 String otp = '$otp1$otp2$otp3$otp4$otp5$otp6';
                 if (otp.length == 6) {
                   widget.onClick(otp);
                 } else {
-                  const snackBar =
-                      SnackBar(content: Text('Enter a valid phone'));
+                  const snackBar = SnackBar(content: Text('Enter a valid phone'));
                   ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 }
               },
               style: ButtonStyle(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18.0),
               ))),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  'Continue',
-                  style: TextStyle(color: Colors.white),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    widget.isLoading
+                        ? const Padding(
+                            padding: EdgeInsets.only(right: 8.0),
+                            child: SpinKitRing(
+                              color: Colors.white,
+                              lineWidth: 2,
+                              size: 18.0,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
+                    const Text(
+                      'Continue',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ))
         ],

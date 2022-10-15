@@ -1,4 +1,4 @@
-class WasteItem {
+class WasteItemModel {
   String id;
   String title;
   String description;
@@ -7,7 +7,7 @@ class WasteItem {
   double price;
   String imgURL;
 
-  WasteItem(
+  WasteItemModel(
       {required this.id,
       required this.title,
       required this.description,
@@ -16,7 +16,7 @@ class WasteItem {
       required this.price,
       required this.imgURL});
 
-  static WasteItem fromJSON(Map<String, dynamic> data) => WasteItem(
+  static WasteItemModel fromJSON(Map<String, dynamic> data) => WasteItemModel(
       id: data['id'],
       title: data['title'],
       description: data['description'],

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:garbage_mng/models/waste_item.dart';
+import 'package:garbage_mng/models/waste_item_model.dart';
 
 class SellerWasteItemCard extends StatelessWidget {
-  final WasteItem item;
+  final WasteItemModel item;
 
   final Map<String, String> imageURL = {
     'plastic': 'https://img.icons8.com/color/96/000000/alcohol-bottle.png',

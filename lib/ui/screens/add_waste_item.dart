@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:garbage_mng/models/waste_item.dart';
+import 'package:garbage_mng/models/waste_item_model.dart';
 
 class AddWasteItemScreen extends StatefulWidget {
-  final WasteItem? editItem;
+  final WasteItemModel? editItem;
   const AddWasteItemScreen({Key? key, this.editItem}) : super(key: key);
 
   @override

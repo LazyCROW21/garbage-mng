@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
@@ -11,6 +12,9 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   int step = 1;
+  bool isLoginningIn = false;
+  String firebaseOTPVerificationId = '';
+  Map<String, String> userForm = {'fullName': '', 'phone': ''};
 
   @override
   void initState() {
@@ -22,10 +26,49 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  onStepOneComplete() {
+  onStepOneComplete(Map<String, String> data) {
+    userForm['fullName'] = data['fullName'] ?? '';
+    userForm['phone'] = data['phone'] ?? '';
+    FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: data['phone'],
+      verificationCompleted: (PhoneAuthCredential credential) {},
+      verificationFailed: (FirebaseAuthException e) {},
+      codeSent: (String verificationId, int? resendToken) {
+        firebaseOTPVerificationId = verificationId;
+        setState(() {
+          step = 2;
+        });
+      },
+      codeAutoRetrievalTimeout: (String verificationId) {},
+    );
+  }
+
+  onOTPSubmit(String smsCode) async {
     setState(() {
-      step = 2;
+      isLoginningIn = true;
     });
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      PhoneAuthCredential credential =
+          PhoneAuthProvider.credential(verificationId: firebaseOTPVerificationId, smsCode: smsCode);
+      UserCredential userCredential = await auth.signInWithCredential(credential);
+      CollectionReference userModel = FirebaseFirestore.instance.collection("users");
+      await userModel.doc(userCredential.user?.uid).set(
+          {'fullName': userForm['fullName'], 'phone': userCredential.user?.phoneNumber ?? userForm['phone'], 'type': 'seller'});
+      setState(() {
+        isLoginningIn = false;
+      });
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoginningIn = false;
+      });
+      const snackBar = SnackBar(content: Text('Invalid OTP'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -59,11 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   ? StepOne(
                       onStepComplete: onStepOneComplete,
                     )
-                  : OTPInput(
-                      phoneNumber: '',
-                      onClick: () {
-                        Navigator.of(context).pushReplacementNamed('/home');
-                      }),
+                  : OTPInput(phoneNumber: userForm['phone'] ?? '', isLoading: isLoginningIn, onClick: onOTPSubmit),
               Expanded(child: Container()),
             ],
           ),
@@ -85,15 +124,41 @@ class StepOne extends StatefulWidget {
 class _StepOneState extends State<StepOne> {
   TextEditingController fullNameInp = TextEditingController();
   TextEditingController phoneInp = TextEditingController();
+  String countryCodeValue = '';
 
+  // List of items in our dropdown menu
+  var countryCodes = [
+    '+91',
+  ];
   @override
   void initState() {
+    if (countryCodes.isNotEmpty) {
+      countryCodeValue = countryCodes[0];
+    }
     super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
+  }
+
+  String? fullNameValidator(String? inp) {
+    if (inp == null) {
+      return 'Full name is required';
+    } else if (inp.length < 3 || inp.length > 64) {
+      return 'Full name should be 3 to 64 characters long';
+    }
+    return null;
+  }
+
+  String? phoneValidator(String? inp) {
+    if (inp == null) {
+      return 'Phone is required';
+    } else if (inp.length != 10) {
+      return 'Phone be 3 to 64 characters long';
+    }
+    return null;
   }
 
   @override
@@ -103,16 +168,49 @@ class _StepOneState extends State<StepOne> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TextField(
+          TextFormField(
             decoration: const InputDecoration(hintText: 'Full Name'),
             controller: fullNameInp,
+            validator: fullNameValidator,
+            autovalidateMode: AutovalidateMode.always,
           ),
           const SizedBox(
             height: 16,
           ),
-          TextField(
-            decoration: const InputDecoration(hintText: 'Phone Number'),
-            controller: phoneInp,
+          SizedBox(
+            height: 64,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: DropdownButton(
+                      underline: const SizedBox.shrink(),
+                      value: countryCodeValue,
+                      items: countryCodes
+                          .map((String countryCode) => DropdownMenuItem(value: countryCode, child: Text(countryCode)))
+                          .toList(),
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          countryCodeValue = newValue!;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                Expanded(
+                    flex: 5,
+                    child: TextFormField(
+                      keyboardType: TextInputType.phone,
+                      decoration: const InputDecoration(hintText: 'Phone Number'),
+                      controller: phoneInp,
+                      autovalidateMode: AutovalidateMode.always,
+                    ))
+              ],
+            ),
           ),
           const SizedBox(
             height: 32,
@@ -144,11 +242,10 @@ class _StepOneState extends State<StepOne> {
               Expanded(
                 child: ElevatedButton(
                     onPressed: () async {
-                      try {
-                        widget.onStepComplete();
-                      } on FirebaseAuthException catch (e) {
-                        print(e);
+                      if (fullNameValidator(fullNameInp.text) != null || phoneValidator(phoneInp.text) != null) {
+                        return;
                       }
+                      widget.onStepComplete({'fullName': fullNameInp.text, 'phone': '$countryCodeValue${phoneInp.text}'});
                     },
                     style: ButtonStyle(
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(

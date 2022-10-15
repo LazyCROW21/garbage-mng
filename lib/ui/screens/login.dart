@@ -1,6 +1,6 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   String phone = '', firebaseOTPVerificationId = '';
   int step = 1;
+  bool isLoginningIn = false;
 
   @override
   void initState() {
@@ -22,6 +23,28 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  onOTPSubmit(String smsCode) async {
+    setState(() {
+      isLoginningIn = true;
+    });
+    try {
+      await AuthService.confirmOTP(firebaseOTPVerificationId, smsCode);
+      setState(() {
+        isLoginningIn = false;
+      });
+      if (mounted) {
+        Navigator.of(context).pushReplacementNamed('/home');
+      }
+    } catch (e) {
+      print(e);
+      setState(() {
+        isLoginningIn = false;
+      });
+      const snackBar = SnackBar(content: Text('Invalid OTP'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
   }
 
   @override
@@ -78,33 +101,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   ? StepOne(
                       onStepComplete: (String phoneNumber) async {
                         phone = phoneNumber;
-                        await FirebaseAuth.instance.verifyPhoneNumber(
-                          phoneNumber: phone,
-                          verificationCompleted: (PhoneAuthCredential credential) {},
-                          verificationFailed: (FirebaseAuthException e) {},
-                          codeSent: (String verificationId, int? resendToken) {
-                            firebaseOTPVerificationId = verificationId;
-                            setState(() {
-                              step = 2;
-                            });
-                          },
-                          codeAutoRetrievalTimeout: (String verificationId) {},
-                        );
+                        AuthService.sendOTP(phoneNumber, (verificationId, resendToken) {
+                          firebaseOTPVerificationId = verificationId;
+                          setState(() {
+                            step = 2;
+                          });
+                        });
                       },
                     )
                   : OTPInput(
                       phoneNumber: phone,
-                      onClick: (String smsCode) async {
-                        try {
-                          FirebaseAuth auth = FirebaseAuth.instance;
-                          PhoneAuthCredential credential =
-                              PhoneAuthProvider.credential(verificationId: firebaseOTPVerificationId, smsCode: smsCode);
-                          await auth.signInWithCredential(credential);
-                          Navigator.of(context).pushReplacementNamed('/home');
-                        } catch (e) {
-                          print(e);
-                        }
-                      },
+                      isLoading: isLoginningIn,
+                      onClick: onOTPSubmit,
                     ),
               Expanded(child: Container()),
               const Text(
