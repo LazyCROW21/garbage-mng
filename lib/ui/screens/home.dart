@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/ui/widgets/account.dart';
 import 'package:garbage_mng/ui/widgets/store.dart';
+import 'package:garbage_mng/ui/widgets/user_profile.dart';
 
 class HomePage extends StatefulWidget {
 
@@ -17,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: DefaultTabController(
-        length: 3,
+        length: 4,
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           bottomNavigationBar: Container(
@@ -34,6 +35,7 @@ class _HomePageState extends State<HomePage> {
               tabs: const [
                 Tab(icon: Icon(Icons.home)),
                 Tab(icon: Icon(Icons.local_grocery_store)),
+                Tab(icon: Icon(Icons.people),),
                 Tab(icon: Icon(Icons.person)),
               ],
             ),
@@ -42,6 +44,7 @@ class _HomePageState extends State<HomePage> {
             children: [
               Icon(Icons.home),
               Store(),
+              UserProfile(),
               Account(),
             ],
           ),
