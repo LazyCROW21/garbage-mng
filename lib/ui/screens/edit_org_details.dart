@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/models/organisation.dart';
 
@@ -70,6 +71,7 @@ class _EditOrganisationDetailsState extends State<EditOrganisationDetails> {
                 height: 12,
               ),TextFormField(
                 keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 initialValue: widget.editOrganisation?.number,
                 decoration: const InputDecoration(labelText: 'Number'),
                 validator: numberValidator,
