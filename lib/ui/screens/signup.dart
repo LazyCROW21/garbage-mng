@@ -1,6 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -48,13 +48,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       isLoginningIn = true;
     });
     try {
-      FirebaseAuth auth = FirebaseAuth.instance;
-      PhoneAuthCredential credential =
-          PhoneAuthProvider.credential(verificationId: firebaseOTPVerificationId, smsCode: smsCode);
-      UserCredential userCredential = await auth.signInWithCredential(credential);
-      CollectionReference userModel = FirebaseFirestore.instance.collection("users");
-      await userModel.doc(userCredential.user?.uid).set(
-          {'fullName': userForm['fullName'], 'phone': userCredential.user?.phoneNumber ?? userForm['phone'], 'type': 'seller'});
+      await AuthService.createAccount(
+          userForm['fullName'] ?? '', userForm['phone'] ?? '', firebaseOTPVerificationId, smsCode, 'seller');
       setState(() {
         isLoginningIn = false;
       });
@@ -130,6 +125,7 @@ class _StepOneState extends State<StepOne> {
   var countryCodes = [
     '+91',
   ];
+
   @override
   void initState() {
     if (countryCodes.isNotEmpty) {

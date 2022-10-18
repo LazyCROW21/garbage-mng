@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/user_model.dart';
 
-class OrganisationCard extends StatefulWidget {
+class UserCard extends StatelessWidget {
   final UserModel data;
-  const OrganisationCard(this.data, {Key? key}) : super(key: key);
+  final Function onDelete;
+  const UserCard(this.data, {super.key, required this.onDelete});
 
-  @override
-  State<OrganisationCard> createState() => _OrganisationCardState();
-}
-
-class _OrganisationCardState extends State<OrganisationCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -29,11 +25,11 @@ class _OrganisationCardState extends State<OrganisationCard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      widget.data.fullName,
+                      data.fullName,
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      widget.data.phone,
+                      data.phone,
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
@@ -41,10 +37,10 @@ class _OrganisationCardState extends State<OrganisationCard> {
             Container(
               padding: const EdgeInsets.all(10),
               child: IconButton(
-                color: Colors.green,
-                icon: const Icon(Icons.edit),
+                color: Colors.red,
+                icon: const Icon(Icons.delete),
                 onPressed: () {
-                  Navigator.of(context).pushNamed('/editOrganisation', arguments: widget.data);
+                  onDelete();
                 },
               ),
             )

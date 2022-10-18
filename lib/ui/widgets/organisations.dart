@@ -1,5 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:garbage_mng/models/user_model.dart';
 import 'organisation_card.dart';
 
 class Organisations extends StatefulWidget {
@@ -10,32 +11,43 @@ class Organisations extends StatefulWidget {
 }
 
 class _OrganisationsState extends State<Organisations> {
-  List<Map<String, String>> orgs = [
-    {
-      'Name': "Haddi Nubda",
-      'PhoneNumber': "988754445631",
+  final Stream<QuerySnapshot> organisationQuery =
+      FirebaseFirestore.instance.collection('users').where('type', isEqualTo: 'buyer').snapshots();
 
-    },
-    {
-      'Name': "Haddi Nubda",
-      'PhoneNumber': "988754445631",
+  organisationListView(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+    return ListView(
+      children: snapshot.data!.docs.map((DocumentSnapshot document) {
+        Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+        data['id'] = document.id;
+        return OrganisationCard(
+          UserModel.fromJSON(data),
+        );
+      }).toList(),
+    );
+  }
 
-    },
-    {
-      'Name': "Haddi Nubda",
-      'PhoneNumber': "988754445631",
-
-    },
-  ];
   @override
   Widget build(BuildContext context) {
-    return  ListView.builder(
-      itemCount: orgs.length,
-      itemBuilder: (BuildContext context, int index) {
-        return OrganisationCard(data : orgs[index]);
-      },
-    );;
+    return StreamBuilder<QuerySnapshot>(
+        stream: organisationQuery,
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  'Something went wrong',
+                  textAlign: TextAlign.center,
+                ));
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                  "Loading",
+                  textAlign: TextAlign.center,
+                ));
+          }
+          return organisationListView(snapshot);
+        });
   }
 }
-
-

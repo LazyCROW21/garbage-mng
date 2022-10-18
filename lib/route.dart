@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:garbage_mng/models/organisation.dart';
+import 'package:garbage_mng/models/user_model.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
 import 'package:garbage_mng/ui/screens/add_waste_item.dart';
 import 'package:garbage_mng/ui/screens/edit_org_details.dart';
@@ -27,7 +27,7 @@ class RouteGenerator {
         WasteItemModel? editItem = args as WasteItemModel?;
         return MaterialPageRoute(builder: (_) => AddWasteItemScreen(editItem: editItem));
       case '/editOrganisation':
-        Organisation? org = args as Organisation?;
+        UserModel? org = args as UserModel?;
         return MaterialPageRoute(
             builder: (_) => EditOrganisationDetails(
                   editOrganisation: org,
