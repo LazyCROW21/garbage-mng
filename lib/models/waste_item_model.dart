@@ -4,7 +4,7 @@ class WasteItemModel {
   String description;
   String type;
   int stock;
-  double price;
+  num price;
   String imgURL;
 
   WasteItemModel(
