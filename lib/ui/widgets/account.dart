@@ -71,7 +71,7 @@ class _AccountState extends State<Account> {
             height: 12,
           ),
           TextFormField(
-            decoration: const InputDecoration(hintText: 'Full Name'),
+            decoration: const InputDecoration(labelText: 'Full Name'),
             validator: fullNameValidator,
             autovalidateMode: AutovalidateMode.always,
             controller: fullNameController,

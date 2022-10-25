@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
+import 'package:garbage_mng/common/assets_map.dart';
 
 class ViewWasteItemScreen extends StatefulWidget {
   final WasteItemModel wasteItem;
@@ -12,12 +13,6 @@ class ViewWasteItemScreen extends StatefulWidget {
 
 class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
   CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
-  final Map<String, String> imageURL = {
-    'plastic': 'https://img.icons8.com/color/96/000000/alcohol-bottle.png',
-    'paper': 'https://img.icons8.com/fluency/96/000000/paper-waste.png',
-    'electronic': 'https://img.icons8.com/fluency/96/000000/electronics.png',
-    'metal': 'https://img.icons8.com/fluency/96/000000/metal.png'
-  };
   bool inCart = false;
   int qty = 0;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -29,57 +24,6 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
   void initState() {
     wasteTypeValue = widget.wasteItem.type;
     super.initState();
-  }
-
-  addWasteItemToCart() {
-    // wasteItemModel.add(wasteItem).then((DocumentReference doc) {
-    //   setState(() {
-    //     isSaving = false;
-    //   });
-    //   const snackBar = SnackBar(content: Text('Item added'));
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    //   Navigator.of(context).pop();
-    // }).catchError((err) {
-    //   setState(() {
-    //     isSaving = false;
-    //   });
-    //   const snackBar = SnackBar(content: Text('Error in saving'));
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    // });
-  }
-
-  updateWasteItemQty() {
-    // wasteItemModel.doc(widget.editItem!.id).update(wasteItem).then((value) {
-    //   setState(() {
-    //     isSaving = false;
-    //   });
-    // }).catchError((err) {
-    //   setState(() {
-    //     isSaving = false;
-    //   });
-    //   const snackBar = SnackBar(content: Text('Error in saving'));
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    // });
-  }
-
-  removeWasteItemFromCart() {
-    // setState(() {
-    //   isDeleting = false;
-    // });
-    // wasteItemModel.doc(widget.editItem!.id).delete().then((value) {
-    //   setState(() {
-    //     isDeleting = false;
-    //   });
-    //   Navigator.of(context).pop();
-    //   const snackBar = SnackBar(content: Text('Item removed'));
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    // }).catchError((err) {
-    //   setState(() {
-    //     isDeleting = false;
-    //   });
-    //   const snackBar = SnackBar(content: Text('Error in saving'));
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    // });
   }
 
   @override
@@ -96,9 +40,10 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
             children: [
               Container(
                   margin: const EdgeInsets.all(8.0),
-                  child: Image.network(widget.wasteItem.imgURL == ''
-                      ? (imageURL[widget.wasteItem.type] ?? 'https://img.icons8.com/fluency/96/000000/waste--v1.png')
-                      : widget.wasteItem.imgURL)),
+                  child: FadeInImage(
+                    image: NetworkImage(defaultImg),
+                    placeholder: NetworkImage(imageURL[widget.wasteItem.type] ?? defaultImg),
+                  )),
               const Expanded(
                 child: Divider(
                   height: 2,
@@ -126,9 +71,6 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
               ),
               const SizedBox(
                 height: 12,
-              ),
-              Text(
-                'Price: ${widget.wasteItem.price}',
               ),
               const SizedBox(
                 height: 12,

@@ -1,11 +1,19 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:garbage_mng/common/validators.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:garbage_mng/common/assets_map.dart';
 
 class AddWasteItemScreen extends StatefulWidget {
   final WasteItemModel? editItem;
-  const AddWasteItemScreen({Key? key, this.editItem}) : super(key: key);
+  final String? wasteType;
+  const AddWasteItemScreen({Key? key, this.editItem, this.wasteType}) : super(key: key);
 
   @override
   State<AddWasteItemScreen> createState() => _AddWasteItemScreenState();
@@ -13,9 +21,9 @@ class AddWasteItemScreen extends StatefulWidget {
 
 class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   bool editMode = false;
+  File? imageFile;
   CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
-
-  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'stock': 0, 'price': 0.0, 'imgURL': ''};
+  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'stock': 0, 'imgURL': ''};
 
   bool isSaving = false, isDeleting = false;
 
@@ -29,60 +37,37 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
     if (wasteTypes.isNotEmpty) {
       wasteTypeValue = wasteTypes[0];
     }
-    if (widget.editItem != null) {
+    if (widget.wasteType != null) {
+      wasteTypeValue = widget.wasteType ?? wasteTypes[0];
+    } else if (widget.editItem != null) {
       editMode = true;
       wasteTypeValue = widget.editItem!.type;
     }
     super.initState();
   }
 
-  String? titleValidator(String? inp) {
-    if (inp == null) {
-      return 'Title is required';
-    } else if (inp.length < 3 || inp.length > 64) {
-      return 'Title must be 3 to 64 characters';
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.camera);
+      if (image == null) return;
+      setState(() {
+        imageFile = File(image.path);
+      });
+    } on PlatformException catch (e) {
+      print('Permission denied');
+      print(e);
     }
-    return null;
-  }
-
-  String? descriptionValidator(String? inp) {
-    if (inp == null) {
-      return 'Description is required';
-    } else if (inp.length < 3 || inp.length > 256) {
-      return 'Description must be 3 to 256 characters';
-    }
-    return null;
-  }
-
-  String? stockValidator(String? inp) {
-    if (inp == null) {
-      return 'Stock is required';
-    } else {
-      int? inpInt = int.tryParse(inp);
-      if (inpInt == null || inpInt <= 0) {
-        return 'Stock must be integer greater than 0';
-      }
-    }
-    return null;
-  }
-
-  String? priceValidator(String? inp) {
-    if (inp == null) {
-      return 'Price is required';
-    } else {
-      double? inpInt = double.tryParse(inp);
-      if (inpInt == null || inpInt <= 0) {
-        return 'Price must be number greater than 0';
-      }
-    }
-    return null;
   }
 
   addWasteItem() {
     wasteItemModel.add(wasteItem).then((DocumentReference doc) {
-      setState(() {
-        isSaving = false;
-      });
+      if (imageFile != null) {
+        String path = 'files/waste_item_${doc.id}';
+        FirebaseStorage.instance.ref().child(path).putFile(imageFile!);
+        setState(() {
+          isSaving = false;
+        });
+      }
       const snackBar = SnackBar(content: Text('Item added'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
       Navigator.of(context).pop();
@@ -97,6 +82,13 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
 
   updateWasteItem() {
     wasteItemModel.doc(widget.editItem!.id).update(wasteItem).then((value) {
+      if (imageFile != null) {
+        String path = 'files/waste_item_${widget.editItem!.id}';
+        FirebaseStorage.instance.ref().child(path).putFile(imageFile!);
+        setState(() {
+          isSaving = false;
+        });
+      }
       setState(() {
         isSaving = false;
       });
@@ -114,6 +106,11 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
       isDeleting = false;
     });
     wasteItemModel.doc(widget.editItem!.id).delete().then((value) {
+      String path = 'files/waste_item_${widget.editItem!.id}';
+      FirebaseStorage.instance.ref().child(path).delete();
+      setState(() {
+        isSaving = false;
+      });
       setState(() {
         isDeleting = false;
       });
@@ -141,8 +138,19 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
           key: formKey,
           child: ListView(
             children: [
+              imageFile != null ? Image.file(imageFile!) : Image.network(imageURL[wasteTypeValue] ?? defaultImg),
+              TextButton(
+                onPressed: () => pickImage(),
+                child: const Text(
+                  'Upload Image',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
               TextFormField(
-                initialValue: widget.editItem?.title,
+                initialValue: widget.editItem == null ? '' : widget.editItem?.title,
                 decoration: const InputDecoration(labelText: 'Title'),
                 validator: titleValidator,
                 onSaved: (String? inp) {
@@ -153,7 +161,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
                 height: 12,
               ),
               TextFormField(
-                initialValue: widget.editItem?.description,
+                initialValue: widget.editItem == null ? '' : widget.editItem?.description,
                 decoration: const InputDecoration(labelText: 'Description'),
                 maxLines: 4,
                 validator: descriptionValidator,
@@ -183,34 +191,12 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
                 height: 12,
               ),
               TextFormField(
-                initialValue: '${widget.editItem?.stock}',
+                initialValue: widget.editItem == null ? '' : '${widget.editItem?.stock}',
                 decoration: const InputDecoration(labelText: 'Stock'),
                 keyboardType: TextInputType.number,
                 validator: stockValidator,
                 onSaved: (String? inp) {
                   wasteItem['stock'] = int.tryParse(inp ?? '0') ?? 0;
-                },
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              TextFormField(
-                initialValue: '${widget.editItem?.price}',
-                decoration: const InputDecoration(labelText: 'Price'),
-                validator: priceValidator,
-                keyboardType: TextInputType.number,
-                onSaved: (String? inp) {
-                  wasteItem['price'] = double.tryParse(inp ?? '0') ?? 0.0;
-                },
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              TextFormField(
-                initialValue: widget.editItem?.imgURL,
-                decoration: const InputDecoration(labelText: 'Image URL'),
-                onSaved: (String? inp) {
-                  wasteItem['imgURL'] = inp ?? '';
                 },
               ),
               const SizedBox(

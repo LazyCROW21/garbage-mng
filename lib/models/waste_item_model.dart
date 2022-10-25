@@ -4,24 +4,16 @@ class WasteItemModel {
   String description;
   String type;
   int stock;
-  num price;
-  String imgURL;
 
-  WasteItemModel(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.type,
-      required this.stock,
-      required this.price,
-      required this.imgURL});
+  WasteItemModel({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.type,
+    required this.stock,
+    // required this.price
+  });
 
   static WasteItemModel fromJSON(Map<String, dynamic> data) => WasteItemModel(
-      id: data['id'],
-      title: data['title'],
-      description: data['description'],
-      type: data['type'],
-      stock: data['stock'],
-      price: data['price'],
-      imgURL: data['imgURL']);
+      id: data['id'], title: data['title'], description: data['description'], type: data['type'], stock: data['stock']);
 }

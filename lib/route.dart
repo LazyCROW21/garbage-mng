@@ -24,8 +24,15 @@ class RouteGenerator {
         WasteItemModel wasteItem = args as WasteItemModel;
         return MaterialPageRoute(builder: (_) => ViewWasteItemScreen(wasteItem: wasteItem));
       case '/addWasteItem':
-        WasteItemModel? editItem = args as WasteItemModel?;
-        return MaterialPageRoute(builder: (_) => AddWasteItemScreen(editItem: editItem));
+        WasteItemModel? editItem;
+        String? wasteType;
+        if (args is WasteItemModel) {
+          editItem = args;
+        }
+        if (args is String) {
+          wasteType = args;
+        }
+        return MaterialPageRoute(builder: (_) => AddWasteItemScreen(editItem: editItem, wasteType: wasteType));
       case '/editOrganisation':
         UserModel? org = args as UserModel?;
         return MaterialPageRoute(

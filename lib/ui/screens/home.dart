@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/account.dart';
+import 'package:garbage_mng/ui/widgets/admin_home.dart';
+import 'package:garbage_mng/ui/widgets/buyer_home.dart';
 import 'package:garbage_mng/ui/widgets/organisations.dart';
+import 'package:garbage_mng/ui/widgets/seller_home.dart';
 import 'package:garbage_mng/ui/widgets/store.dart';
 import 'package:garbage_mng/ui/widgets/users.dart';
 
@@ -15,9 +18,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   List<Tab> tabs = [];
   List<String> title = [];
+  List<List<Widget>> actionMenu = [];
   List<FloatingActionButton?> floatingActionButton = [];
   List<Widget> screens = [];
   late TabController tabController;
+
+  final Tab homeTab = const Tab(text: 'Home', icon: Icon(Icons.home));
+  final Tab storeTab = const Tab(text: 'Store', icon: Icon(Icons.local_grocery_store));
+  final Tab accountTab = const Tab(text: 'Account', icon: Icon(Icons.person));
+
+  goTo(int index) {
+    tabController.animateTo(index);
+  }
 
   @override
   void initState() {
@@ -25,15 +37,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       case 'seller':
         tabController = TabController(length: 3, vsync: this);
         title.addAll(['Home', 'Store', 'Account']);
-        tabs.addAll(const [
-          Tab(icon: Icon(Icons.home)),
-          Tab(icon: Icon(Icons.local_grocery_store)),
-          Tab(icon: Icon(Icons.person)),
+        tabs.addAll([homeTab, storeTab, accountTab]);
+        actionMenu.addAll([
+          [],
+          [
+            PopupMenuButton(itemBuilder: (content) {
+              return const [PopupMenuItem<int>(value: 0, child: Text('Orders'))];
+            })
+          ],
+          []
         ]);
-        screens.addAll(const [
-          Icon(Icons.home),
-          Store(),
-          Account(),
+        screens.addAll([
+          SellerHome(),
+          const Store(),
+          const Account(),
         ]);
         floatingActionButton.addAll([
           null,
@@ -48,15 +65,20 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       case 'buyer':
         tabController = TabController(length: 3, vsync: this);
         title.addAll(['Home', 'Store', 'Account']);
-        tabs.addAll(const [
-          Tab(icon: Icon(Icons.home)),
-          Tab(icon: Icon(Icons.local_grocery_store)),
-          Tab(icon: Icon(Icons.person)),
+        actionMenu.addAll([
+          [],
+          [
+            PopupMenuButton(itemBuilder: (content) {
+              return const [PopupMenuItem<int>(value: 0, child: Text('Orders'))];
+            })
+          ],
+          []
         ]);
-        screens.addAll(const [
-          Icon(Icons.home),
-          Store(),
-          Account(),
+        tabs.addAll([homeTab, storeTab, accountTab]);
+        screens.addAll([
+          BuyerHome(),
+          const Store(),
+          const Account(),
         ]);
         floatingActionButton.addAll([
           null,
@@ -67,21 +89,26 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       case 'admin':
         tabController = TabController(length: 4, vsync: this);
         title.addAll(['Home', 'Store', 'Users', 'Organisations']);
-        tabs.addAll(const [
-          Tab(icon: Icon(Icons.home)),
-          Tab(icon: Icon(Icons.local_grocery_store)),
-          Tab(
+        actionMenu.addAll([[], [], [], []]);
+        tabs.addAll([
+          homeTab,
+          storeTab,
+          const Tab(
+            text: 'Users',
             icon: Icon(Icons.people),
           ),
-          Tab(
+          const Tab(
+            text: 'Orgs',
             icon: Icon(Icons.apartment),
           ),
         ]);
-        screens.addAll(const [
-          Icon(Icons.home),
-          Store(),
-          Users(),
-          Organisations(),
+        screens.addAll([
+          AdminHome(
+            goToCallback: goTo,
+          ),
+          const Store(),
+          const Users(),
+          const Organisations(),
         ]);
         floatingActionButton.addAll([
           null,
@@ -96,15 +123,15 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         break;
       default:
         tabController = TabController(length: 3, vsync: this);
-        tabs.addAll(const [
-          Tab(icon: Icon(Icons.home)),
-          Tab(icon: Icon(Icons.local_grocery_store)),
-          Tab(icon: Icon(Icons.person)),
+        tabs.addAll([
+          homeTab,
+          storeTab,
+          accountTab,
         ]);
-        screens.addAll(const [
-          Icon(Icons.home),
-          Store(),
-          Account(),
+        screens.addAll([
+          SellerHome(),
+          const Store(),
+          const Account(),
         ]);
         floatingActionButton.addAll([
           null,
@@ -149,6 +176,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             title[tabController.index],
             style: const TextStyle(color: Colors.lightGreen),
           ),
+          actions: actionMenu[tabController.index],
           elevation: 0,
           backgroundColor: Colors.white,
           centerTitle: true,

@@ -8,11 +8,11 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-      name: 'GarBage',
+      // name: 'GarBage',
       options: const FirebaseOptions(
           apiKey: "AIzaSyDa42UtGTXvc0Bu3GEzMozTHGSEEJ2Ps-Q",
           authDomain: "garbage-mng-724fb.firebaseapp.com",
-          projectId: "garbage-mng-724fb",
+          projectId: "garba ge-mng-724fb",
           storageBucket: "garbage-mng-724fb.appspot.com",
           messagingSenderId: "958739902969",
           appId: "1:958739902969:web:f0b9a4f03dfd7313754d28"));
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Poppins',
         primarySwatch: Colors.lightGreen,
       ),
-      initialRoute: '/login',
+      initialRoute: '/home',
       onGenerateRoute: RouteGenerator.generateRoute,
     );
   }

@@ -10,7 +10,7 @@ class UserCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: SizedBox(
-        height: 128,
+        height: 96,
         child: Stack(children: [
           Row(children: [
             Expanded(
