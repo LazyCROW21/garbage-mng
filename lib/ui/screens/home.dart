@@ -41,14 +41,19 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         actionMenu.addAll([
           [],
           [
-            PopupMenuButton(itemBuilder: (content) {
-              return const [PopupMenuItem<int>(value: 0, child: Text('Orders'))];
-            })
+            PopupMenuButton(
+              itemBuilder: (content) {
+                return const [PopupMenuItem<int>(value: 0, child: Text('Orders'))];
+              },
+              onSelected: ((value) {
+                Navigator.of(context).pushNamed('/orders');
+              }),
+            )
           ],
           []
         ]);
         screens.addAll([
-          SellerHome(),
+          const SellerHome(),
           const Store(),
           const Account(),
         ]);
@@ -69,14 +74,21 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           [],
           [
             PopupMenuButton(itemBuilder: (content) {
-              return const [PopupMenuItem<int>(value: 0, child: Text('Orders'))];
+              return [
+                PopupMenuItem<int>(
+                    onTap: () {
+                      Navigator.of(context).pushNamed('/orders');
+                    },
+                    value: 0,
+                    child: const Text('Orders'))
+              ];
             })
           ],
           []
         ]);
         tabs.addAll([homeTab, storeTab, accountTab]);
         screens.addAll([
-          BuyerHome(),
+          const BuyerHome(),
           const Store(),
           const Account(),
         ]);
@@ -129,7 +141,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           accountTab,
         ]);
         screens.addAll([
-          SellerHome(),
+          const SellerHome(),
           const Store(),
           const Account(),
         ]);

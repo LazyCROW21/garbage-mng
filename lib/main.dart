@@ -8,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-      // name: 'GarBage',
+      name: 'GarBage',
       options: const FirebaseOptions(
           apiKey: "AIzaSyDa42UtGTXvc0Bu3GEzMozTHGSEEJ2Ps-Q",
           authDomain: "garbage-mng-724fb.firebaseapp.com",

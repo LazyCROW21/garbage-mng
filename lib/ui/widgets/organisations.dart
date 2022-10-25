@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/user_model.dart';
-import 'organisation_card.dart';
+import 'cards/organisation_card.dart';
 
 class Organisations extends StatefulWidget {
   const Organisations({Key? key}) : super(key: key);

@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
 import 'package:garbage_mng/services/auth.dart';
-import 'package:garbage_mng/ui/widgets/seller_waste_item_card.dart';
+import 'package:garbage_mng/ui/widgets/cards/seller_waste_item_card.dart';
 
-import 'buyer_waste_item_card.dart';
+import 'cards/buyer_waste_item_card.dart';
 
 class Store extends StatefulWidget {
   const Store({super.key});

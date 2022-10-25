@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/user_model.dart';
-import 'package:garbage_mng/ui/widgets/user_card.dart';
+import 'package:garbage_mng/ui/widgets/cards/user_card.dart';
 
 class Users extends StatefulWidget {
   const Users({Key? key}) : super(key: key);

@@ -35,7 +35,7 @@ class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
                 flex: 1,
                 child: FadeInImage(
                   image: NetworkImage(imgPath),
-                  placeholder: NetworkImage(imageURL[widget.item.type] ?? defaultImg),
+                  placeholder: AssetImage(imageURL[widget.item.type] ?? defaultImg),
                 )),
             Expanded(
                 flex: 3,

@@ -5,6 +5,7 @@ import 'package:garbage_mng/ui/screens/add_waste_item.dart';
 import 'package:garbage_mng/ui/screens/edit_org_details.dart';
 import 'package:garbage_mng/ui/screens/home.dart';
 import 'package:garbage_mng/ui/screens/login.dart';
+import 'package:garbage_mng/ui/screens/orders.dart';
 import 'package:garbage_mng/ui/screens/signup.dart';
 import 'package:garbage_mng/ui/screens/view_waste_item.dart';
 
@@ -39,6 +40,8 @@ class RouteGenerator {
             builder: (_) => EditOrganisationDetails(
                   editOrganisation: org,
                 ));
+      case '/orders':
+        return MaterialPageRoute(builder: (_) => const OrdersPage());
       // case '/second':
       // // Validation of correct data type
       //   if (args is String) {
