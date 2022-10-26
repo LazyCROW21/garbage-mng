@@ -42,7 +42,7 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
                   margin: const EdgeInsets.all(8.0),
                   child: FadeInImage(
                     image: NetworkImage(defaultImg),
-                    placeholder: NetworkImage(imageURL[widget.wasteItem.type] ?? defaultImg),
+                    placeholder: AssetImage(imageURL[widget.wasteItem.type] ?? defaultImg),
                   )),
               const Expanded(
                 child: Divider(

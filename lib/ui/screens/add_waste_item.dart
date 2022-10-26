@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +21,7 @@ class AddWasteItemScreen extends StatefulWidget {
 class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   bool editMode = false;
   File? imageFile;
+  String? imageFirebaseURL;
   CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
   final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'stock': 0, 'imgURL': ''};
 
@@ -34,6 +34,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
 
   @override
   void initState() {
+    print('asdads');
     if (wasteTypes.isNotEmpty) {
       wasteTypeValue = wasteTypes[0];
     }
@@ -42,6 +43,13 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
     } else if (widget.editItem != null) {
       editMode = true;
       wasteTypeValue = widget.editItem!.type;
+      String path = 'files/waste_item_${widget.editItem!.id}';
+      print('ASDSDSD');
+      FirebaseStorage.instance.ref().child(path).getDownloadURL().then((value) {
+        setState(() {
+          imageFirebaseURL = value;
+        });
+      }).catchError((err) => print(err));
     }
     super.initState();
   }
@@ -138,7 +146,12 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
           key: formKey,
           child: ListView(
             children: [
-              imageFile != null ? Image.file(imageFile!) : Image.network(imageURL[wasteTypeValue] ?? defaultImg),
+              imageFirebaseURL == null
+                  ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
+                  : FadeInImage(
+                      image: NetworkImage(imageFirebaseURL!),
+                      placeholder: AssetImage(imageURL[wasteTypeValue] ?? defaultImg),
+                    ),
               TextButton(
                 onPressed: () => pickImage(),
                 child: const Text(

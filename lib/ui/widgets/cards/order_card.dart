@@ -16,7 +16,7 @@ class OrderCard extends StatelessWidget {
       title: Text(_orderItemModel.title),
       subtitle: Text(_orderItemModel.seller),
       trailing: Column(
-        children: [Text('${_orderItemModel.qty}'), const Text('QTY')],
+        children: [const Text('QTY'), Text('${_orderItemModel.qty}')],
       ),
     );
   }
