@@ -10,7 +10,6 @@ class OrderDetails extends StatelessWidget {
 
   List<OrderCard> listOrderItems() {
     List<OrderCard> orderItemCards = [];
-    print(_orderModel.items);
     for (OrderItemModel item in _orderModel.items) {
       orderItemCards.add(OrderCard(item));
     }

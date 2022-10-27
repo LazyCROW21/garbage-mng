@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/common/validators.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
+import 'package:garbage_mng/services/auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:garbage_mng/common/assets_map.dart';
 
@@ -23,7 +24,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   File? imageFile;
   String? imageFirebaseURL;
   CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
-  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'stock': 0, 'imgURL': ''};
+  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'stock': 0};
 
   bool isSaving = false, isDeleting = false;
 
@@ -34,7 +35,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
 
   @override
   void initState() {
-    print('asdads');
+    wasteItem['sellerId'] = AuthService.user!.id;
     if (wasteTypes.isNotEmpty) {
       wasteTypeValue = wasteTypes[0];
     }
@@ -44,7 +45,6 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
       editMode = true;
       wasteTypeValue = widget.editItem!.type;
       String path = 'files/waste_item_${widget.editItem!.id}';
-      print('ASDSDSD');
       FirebaseStorage.instance.ref().child(path).getDownloadURL().then((value) {
         setState(() {
           imageFirebaseURL = value;

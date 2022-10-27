@@ -1,27 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:garbage_mng/common/assets_map.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
 
 class BuyerWasteItemCard extends StatefulWidget {
-  final bool inCart;
   final WasteItemModel item;
 
-  const BuyerWasteItemCard({super.key, required this.item, required this.inCart});
+  const BuyerWasteItemCard(this.item, {super.key});
 
   @override
   State<BuyerWasteItemCard> createState() => _BuyerWasteItemCardState();
 }
 
 class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
-  bool inCart = false;
-  int qty = 0;
-
-  @override
-  void initState() {
-    inCart = widget.inCart;
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -39,8 +31,8 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                 Expanded(
                     flex: 1,
                     child: FadeInImage(
-                      image: NetworkImage(defaultImg),
-                      placeholder: NetworkImage(imageURL[widget.item.type] ?? defaultImg),
+                      image: AssetImage(defaultImg),
+                      placeholder: AssetImage(imageURL[widget.item.type] ?? defaultImg),
                     )),
                 Expanded(
                     flex: 3,
@@ -67,7 +59,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
               ]),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: inCart
+                child: context.read<Cart>().cart[widget.item.id] != null
                     ? Row(
                         children: [
                           Expanded(
@@ -77,8 +69,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                               child: ElevatedButton(
                                   onPressed: () {
                                     setState(() {
-                                      inCart = false;
-                                      qty = 0;
+                                      context.read<Cart>().removeFromCart(widget.item.id);
                                     });
                                   },
                                   style: ButtonStyle(
@@ -102,7 +93,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                                 iconSize: 36,
                                 onPressed: () {
                                   setState(() {
-                                    qty -= 1;
+                                    context.read<Cart>().decrementQty(widget.item.id);
                                   });
                                 },
                                 icon: const Icon(Icons.remove_circle)),
@@ -110,7 +101,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                           Expanded(
                               flex: 1,
                               child: Text(
-                                '$qty',
+                                '${context.watch<Cart>().cart[widget.item.id]}',
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(fontSize: 14),
                               )),
@@ -121,7 +112,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                                 iconSize: 36,
                                 onPressed: () {
                                   setState(() {
-                                    qty += 1;
+                                    context.read<Cart>().incrementQty(widget.item.id);
                                   });
                                 },
                                 icon: const Icon(Icons.add_circle)),
@@ -131,8 +122,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                     : ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            inCart = true;
-                            qty = 1;
+                            context.read<Cart>().addToCart(widget.item.id);
                           });
                         },
                         style: ButtonStyle(

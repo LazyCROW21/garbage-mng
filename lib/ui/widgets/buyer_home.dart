@@ -1,35 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/common/assets_map.dart';
 
+typedef ChangeTabCallback = void Function(String);
+
 class BuyerHome extends StatelessWidget {
-  const BuyerHome({super.key});
+  final ChangeTabCallback onTap;
+  const BuyerHome({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        const Text('What would you like to sell today?'),
+        const Text('What would you like to buy today?'),
         BuyerHomeCard(
           title: 'Plastic',
           iconURL: imageURL['plastic'] ?? defaultImg,
-          onTap: () {},
+          onTap: () {
+            onTap('plastic');
+          },
         ),
         BuyerHomeCard(
           title: 'Paper',
           iconURL: imageURL['paper'] ?? defaultImg,
-          onTap: () {},
+          onTap: () {
+            onTap('paper');
+          },
         ),
         BuyerHomeCard(
           title: 'e-Waste',
           iconURL: imageURL['electronic'] ?? defaultImg,
-          onTap: () {},
+          onTap: () {
+            onTap('electronic');
+          },
         ),
         BuyerHomeCard(
           title: 'Metal',
           iconURL: imageURL['metal'] ?? defaultImg,
-          onTap: () {},
+          onTap: () {
+            onTap('metal');
+          },
         ),
         Expanded(
           child: Container(),
@@ -37,7 +47,7 @@ class BuyerHome extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(flex: 1, child: Image.network('assets/images/recycle_bin.png')),
+            Expanded(flex: 1, child: Image.asset('assets/images/recycle_bin.png')),
             const Expanded(flex: 4, child: Text('Only 25% of the total waste generated in India is collected and processed.')),
           ],
         )
@@ -61,24 +71,7 @@ class BuyerHomeCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: ListTile(
-            leading: Image.network(
-              iconURL,
-              loadingBuilder: ((context, child, loadingProgress) {
-                if (loadingProgress == null) {
-                  return child;
-                }
-                return const SizedBox(
-                  height: 32,
-                  width: 32,
-                  child: Center(
-                    child: SpinKitRing(
-                      lineWidth: 3,
-                      color: Colors.lightGreen,
-                    ),
-                  ),
-                );
-              }),
-            ),
+            leading: Image.asset(iconURL),
             title: Text(title),
             trailing: const Icon(Icons.arrow_forward_ios),
           ),

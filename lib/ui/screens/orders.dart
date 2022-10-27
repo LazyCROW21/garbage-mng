@@ -1,8 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:garbage_mng/models/order_item_model.dart';
 import 'package:garbage_mng/models/order_model.dart';
-import 'package:garbage_mng/ui/widgets/cards/order_card.dart';
+import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/order_details.dart';
 
 class OrdersPage extends StatefulWidget {
@@ -13,7 +12,18 @@ class OrdersPage extends StatefulWidget {
 }
 
 class _OrdersPageState extends State<OrdersPage> {
-  final Stream<QuerySnapshot> ordersQuery = FirebaseFirestore.instance.collection('orders').snapshots();
+  String mode = 'seller';
+  final CollectionReference ordersCollection = FirebaseFirestore.instance.collection('orders');
+
+  @override
+  void initState() {
+    if (AuthService.user != null) {
+      setState(() {
+        mode = AuthService.user!.type;
+      });
+    }
+    super.initState();
+  }
 
   ordersListView(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     return ListView(
@@ -46,7 +56,9 @@ class _OrdersPageState extends State<OrdersPage> {
           body: Padding(
             padding: const EdgeInsets.all(8.0),
             child: StreamBuilder<QuerySnapshot>(
-                stream: ordersQuery,
+                stream: mode == 'seller'
+                    ? ordersCollection.where('sellers', arrayContains: AuthService.user!.id).snapshots()
+                    : ordersCollection.where('buyerId', isEqualTo: AuthService.user!.id).snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return const Padding(

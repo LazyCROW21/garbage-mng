@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/providers/cart_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/account.dart';
 import 'package:garbage_mng/ui/widgets/admin_home.dart';
@@ -19,8 +21,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   List<Tab> tabs = [];
   List<String> title = [];
   List<List<Widget>> actionMenu = [];
-  List<FloatingActionButton?> floatingActionButton = [];
   List<Widget> screens = [];
+  List<bool> storeFilters = [false, false, false, false];
   late TabController tabController;
 
   final Tab homeTab = const Tab(text: 'Home', icon: Icon(Icons.home));
@@ -31,8 +33,74 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     tabController.animateTo(index);
   }
 
+  String getCartSize() {
+    return '${context.watch<Cart>().cart.length}';
+  }
+
+  Widget? getFloatingActionButton() {
+    switch (AuthService.user!.type) {
+      case 'seller':
+        if (tabController.index == 1) {
+          return FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.of(context).pushNamed('/addWasteItem');
+              });
+        }
+        break;
+      case 'buyer':
+        if (tabController.index == 1) {
+          return FittedBox(
+            child: Stack(
+              alignment: const Alignment(1.4, -1.5),
+              children: [
+                FloatingActionButton(
+                  onPressed: () {},
+                  child: const Icon(Icons.shopping_cart),
+                ),
+                Container(
+                  // This is your Badge
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(minHeight: 32, minWidth: 32),
+                  decoration: BoxDecoration(
+                    boxShadow: [BoxShadow(spreadRadius: 1, blurRadius: 5, color: Colors.black.withAlpha(50))],
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.green,
+                  ),
+                  // This is your Badge
+                  child: Center(
+                    child: Text('${context.watch<Cart>().cart.length}', style: const TextStyle(color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        break;
+      case 'admin':
+        if (tabController.index == 3) {
+          return FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.of(context).pushNamed('/editOrganisation');
+              });
+        }
+        break;
+      default:
+        if (tabController.index == 3) {
+          return FloatingActionButton(
+              child: const Icon(Icons.add),
+              onPressed: () {
+                Navigator.of(context).pushNamed('/addWasteItem');
+              });
+        }
+    }
+    return null;
+  }
+
   @override
   void initState() {
+    super.initState();
     switch (AuthService.user!.type) {
       case 'seller':
         tabController = TabController(length: 3, vsync: this);
@@ -57,15 +125,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const Store(),
           const Account(),
         ]);
-        floatingActionButton.addAll([
-          null,
-          FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.of(context).pushNamed('/addWasteItem');
-              }),
-          null,
-        ]);
         break;
       case 'buyer':
         tabController = TabController(length: 3, vsync: this);
@@ -73,29 +132,45 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         actionMenu.addAll([
           [],
           [
-            PopupMenuButton(itemBuilder: (content) {
-              return [
-                PopupMenuItem<int>(
-                    onTap: () {
-                      Navigator.of(context).pushNamed('/orders');
-                    },
-                    value: 0,
-                    child: const Text('Orders'))
-              ];
-            })
+            PopupMenuButton(
+              itemBuilder: (content) {
+                return const [PopupMenuItem<int>(value: 0, child: Text('Orders'))];
+              },
+              onSelected: ((value) {
+                Navigator.of(context).pushNamed('/orders');
+              }),
+            )
           ],
           []
         ]);
         tabs.addAll([homeTab, storeTab, accountTab]);
         screens.addAll([
-          const BuyerHome(),
-          const Store(),
+          BuyerHome(
+            onTap: (String filter) {
+              switch (filter) {
+                case 'plastic':
+                  storeFilters.setAll(0, [true, false, false, false]);
+                  break;
+                case 'paper':
+                  storeFilters.setAll(0, [false, true, false, false]);
+                  break;
+                case 'electronic':
+                  storeFilters.setAll(0, [false, false, true, false]);
+                  break;
+                case 'metal':
+                  storeFilters.setAll(0, [false, false, false, true]);
+                  break;
+                default:
+                  storeFilters.setAll(0, [false, false, false, false]);
+                  break;
+              }
+              goTo(1);
+            },
+          ),
+          Store(
+            filter: storeFilters,
+          ),
           const Account(),
-        ]);
-        floatingActionButton.addAll([
-          null,
-          null,
-          null,
         ]);
         break;
       case 'admin':
@@ -122,16 +197,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const Users(),
           const Organisations(),
         ]);
-        floatingActionButton.addAll([
-          null,
-          null,
-          null,
-          FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.of(context).pushNamed('/editOrganisation');
-              }),
-        ]);
         break;
       default:
         tabController = TabController(length: 3, vsync: this);
@@ -145,20 +210,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const Store(),
           const Account(),
         ]);
-        floatingActionButton.addAll([
-          null,
-          FloatingActionButton(
-              child: const Icon(Icons.add),
-              onPressed: () {
-                Navigator.of(context).pushNamed('/addWasteItem');
-              }),
-          null,
-        ]);
     }
+
     tabController.addListener(() {
       setState(() {});
     });
-    super.initState();
   }
 
   @override
@@ -197,7 +253,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           controller: tabController,
           children: screens,
         ),
-        floatingActionButton: floatingActionButton[tabController.index],
+        floatingActionButton: getFloatingActionButton(),
       ),
     );
   }

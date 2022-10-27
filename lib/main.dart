@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:garbage_mng/route.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
 // email: garbagemng2022@gmail.com
 // pwd: GarBage2022
@@ -16,7 +18,7 @@ void main() async {
           storageBucket: "garbage-mng-724fb.appspot.com",
           messagingSenderId: "958739902969",
           appId: "1:958739902969:web:f0b9a4f03dfd7313754d28"));
-  runApp(const MyApp());
+  runApp(MultiProvider(providers: [ChangeNotifierProvider(create: (_) => Cart())], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {

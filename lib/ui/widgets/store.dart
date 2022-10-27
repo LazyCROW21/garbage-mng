@@ -7,7 +7,8 @@ import 'package:garbage_mng/ui/widgets/cards/seller_waste_item_card.dart';
 import 'cards/buyer_waste_item_card.dart';
 
 class Store extends StatefulWidget {
-  const Store({super.key});
+  final List<bool>? filter;
+  const Store({super.key, this.filter});
 
   @override
   State<Store> createState() => _StoreState();
@@ -15,20 +16,34 @@ class Store extends StatefulWidget {
 
 class _StoreState extends State<Store> {
   String mode = 'seller';
-  final Stream<QuerySnapshot> wasteItemsQuery = FirebaseFirestore.instance.collection('wasteItems').snapshots();
+  CollectionReference wasteItemsCollection = FirebaseFirestore.instance.collection('wasteItems');
 
-  // Plastic - Paper - E-waste - Metal
-  List<bool> filters = [false, false, false, false];
+  Map<String, bool> filters = {'plastic': false, 'paper': false, 'electronic': false, 'metal': false};
+
+  Stream<QuerySnapshot<Object?>> itemsStream() {
+    List<String> allowedTypes = [];
+    bool flag = false;
+    Query<Object?> query =
+        mode == 'seller' ? wasteItemsCollection.where('sellerId', isEqualTo: AuthService.user!.id) : wasteItemsCollection;
+
+    for (var filter in filters.entries) {
+      if (filter.value) {
+        flag = true;
+        allowedTypes.add(filter.key);
+      }
+    }
+    if (flag) {
+      return query.where('type', whereIn: allowedTypes).snapshots();
+    }
+    return query.snapshots();
+  }
 
   buyerListView(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     return ListView(
       children: snapshot.data!.docs.map((DocumentSnapshot document) {
         Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
         data['id'] = document.id;
-        return BuyerWasteItemCard(
-          item: WasteItemModel.fromJSON(data),
-          inCart: false,
-        );
+        return BuyerWasteItemCard(WasteItemModel.fromJSON(data));
       }).toList(),
     );
   }
@@ -48,7 +63,17 @@ class _StoreState extends State<Store> {
   @override
   void initState() {
     if (AuthService.user != null) {
-      mode = AuthService.user!.type;
+      setState(() {
+        mode = AuthService.user!.type;
+      });
+    }
+    if (widget.filter != null) {
+      setState(() {
+        filters['plastic'] = widget.filter![0];
+        filters['paper'] = widget.filter![1];
+        filters['electronic'] = widget.filter![2];
+        filters['metal'] = widget.filter![3];
+      });
     }
     super.initState();
   }
@@ -59,65 +84,65 @@ class _StoreState extends State<Store> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Row(
               children: [
                 Checkbox(
-                    value: filters[0],
+                    value: filters['plastic'],
                     onChanged: (bool? value) {
                       setState(() {
-                        filters[0] = value ?? false;
+                        filters['plastic'] = value ?? false;
                       });
                     }),
                 const Text(
                   'Plastic',
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 10),
                 )
               ],
             ),
             Row(
               children: [
                 Checkbox(
-                    value: filters[1],
+                    value: filters['paper'],
                     onChanged: (bool? value) {
                       setState(() {
-                        filters[1] = value ?? false;
+                        filters['paper'] = value ?? false;
                       });
                     }),
                 const Text(
                   'Paper',
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 10),
                 )
               ],
             ),
             Row(
               children: [
                 Checkbox(
-                    value: filters[2],
+                    value: filters['electronic'],
                     onChanged: (bool? value) {
                       setState(() {
-                        filters[2] = value ?? false;
+                        filters['electronic'] = value ?? false;
                       });
                     }),
                 const Text(
                   'e-Waste',
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 10),
                 )
               ],
             ),
             Row(
               children: [
                 Checkbox(
-                    value: filters[3],
+                    value: filters['metal'],
                     onChanged: (bool? value) {
                       setState(() {
-                        filters[3] = value ?? false;
+                        filters['metal'] = value ?? false;
                       });
                     }),
                 const Text(
                   'Metal',
-                  style: TextStyle(fontSize: 12),
+                  style: TextStyle(fontSize: 10),
                 )
               ],
             )
@@ -125,7 +150,7 @@ class _StoreState extends State<Store> {
         ),
         Expanded(
           child: StreamBuilder<QuerySnapshot>(
-              stream: wasteItemsQuery,
+              stream: itemsStream(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   return const Padding(
