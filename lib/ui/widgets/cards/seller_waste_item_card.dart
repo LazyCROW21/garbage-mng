@@ -6,7 +6,10 @@ import 'package:garbage_mng/common/assets_map.dart';
 class SellerWasteItemCard extends StatefulWidget {
   final WasteItemModel item;
 
-  const SellerWasteItemCard({super.key, required this.item});
+  const SellerWasteItemCard(
+    this.item, {
+    super.key,
+  });
 
   @override
   State<SellerWasteItemCard> createState() => _SellerWasteItemCardState();
@@ -51,10 +54,6 @@ class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
                     ),
                     Text(
                       'Material: ${widget.item.type}',
-                      style: const TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    Text(
-                      'Stock: ${widget.item.stock}',
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],

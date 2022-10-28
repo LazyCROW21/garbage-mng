@@ -24,7 +24,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   File? imageFile;
   String? imageFirebaseURL;
   CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
-  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'stock': 0};
+  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': ''};
 
   bool isSaving = false, isDeleting = false;
 
@@ -49,7 +49,9 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
         setState(() {
           imageFirebaseURL = value;
         });
-      }).catchError((err) => print(err));
+      }).catchError((err) {
+        print(err);
+      });
     }
     super.initState();
   }
@@ -202,15 +204,6 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
               ),
               const SizedBox(
                 height: 12,
-              ),
-              TextFormField(
-                initialValue: widget.editItem == null ? '' : '${widget.editItem?.stock}',
-                decoration: const InputDecoration(labelText: 'Stock'),
-                keyboardType: TextInputType.number,
-                validator: stockValidator,
-                onSaved: (String? inp) {
-                  wasteItem['stock'] = int.tryParse(inp ?? '0') ?? 0;
-                },
               ),
               const SizedBox(
                 height: 12,

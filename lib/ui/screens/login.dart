@@ -71,8 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Image.network(
-                          'https://img.icons8.com/external-justicon-flat-justicon/64/000000/external-recycle-ecology-justicon-flat-justicon.png'),
+                      Image.asset('images/icon.png'),
                       const SizedBox(
                         width: 12,
                       ),

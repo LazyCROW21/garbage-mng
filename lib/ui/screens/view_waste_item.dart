@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
@@ -14,11 +16,17 @@ class ViewWasteItemScreen extends StatefulWidget {
 }
 
 class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
-  CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
+  String? downloadURL;
+  Reference fileStorage = FirebaseStorage.instance.ref();
 
   @override
   void initState() {
     super.initState();
+    fileStorage.child('files/waste_item_${widget.wasteItem.id}').getDownloadURL().then((value) {
+      downloadURL = value;
+    }).catchError((err) {
+      print(err);
+    });
   }
 
   @override
@@ -32,11 +40,17 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
         child: ListView(
           children: [
             Container(
-                margin: const EdgeInsets.all(8.0),
-                child: FadeInImage(
-                  image: AssetImage(defaultImg),
-                  placeholder: AssetImage(imageURL[widget.wasteItem.type] ?? defaultImg),
-                )),
+              margin: const EdgeInsets.all(8.0),
+              child: downloadURL != null
+                  ? FadeInImage(
+                      image: NetworkImage(downloadURL!),
+                      placeholder: AssetImage(imageURL[widget.wasteItem.type] ?? defaultImg),
+                    )
+                  : const SpinKitRing(
+                      color: Colors.lightGreen,
+                      lineWidth: 4,
+                    ),
+            ),
             const Expanded(
               child: Divider(
                 height: 2,
@@ -56,12 +70,6 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
               height: 12,
             ),
             Text('Material: ${widget.wasteItem.type}'),
-            const SizedBox(
-              height: 12,
-            ),
-            Text(
-              'Stock: ${widget.wasteItem.stock}',
-            ),
             const SizedBox(
               height: 12,
             ),

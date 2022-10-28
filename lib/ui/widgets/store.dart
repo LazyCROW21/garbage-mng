@@ -53,9 +53,7 @@ class _StoreState extends State<Store> {
       children: snapshot.data!.docs.map((DocumentSnapshot document) {
         Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
         data['id'] = document.id;
-        return SellerWasteItemCard(
-          item: WasteItemModel.fromJSON(data),
-        );
+        return SellerWasteItemCard(WasteItemModel.fromJSON(data));
       }).toList(),
     );
   }

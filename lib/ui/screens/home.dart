@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
+import 'package:garbage_mng/ui/widgets/orders.dart';
 import 'package:provider/provider.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/account.dart';
@@ -55,7 +56,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               alignment: const Alignment(1.4, -1.5),
               children: [
                 FloatingActionButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/checkout');
+                  },
                   child: const Icon(Icons.shopping_cart),
                 ),
                 Container(
@@ -174,9 +177,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ]);
         break;
       case 'admin':
-        tabController = TabController(length: 4, vsync: this);
-        title.addAll(['Home', 'Store', 'Users', 'Organisations']);
-        actionMenu.addAll([[], [], [], []]);
+        tabController = TabController(length: 5, vsync: this);
+        title.addAll(['Home', 'Store', 'Users', 'Organisations', 'Orders']);
+        actionMenu.addAll([[], [], [], [], []]);
         tabs.addAll([
           homeTab,
           storeTab,
@@ -188,6 +191,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
             text: 'Orgs',
             icon: Icon(Icons.apartment),
           ),
+          const Tab(
+              text: 'Ords',
+              icon: Icon(
+                Icons.file_present,
+              ))
         ]);
         screens.addAll([
           AdminHome(
@@ -196,6 +204,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const Store(),
           const Users(),
           const Organisations(),
+          const Orders()
         ]);
         break;
       default:

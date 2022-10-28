@@ -50,10 +50,6 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                           'Material: ${widget.item.type}',
                           style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
-                        Text(
-                          'Stock: ${widget.item.stock}',
-                          style: const TextStyle(fontSize: 14, color: Colors.grey),
-                        ),
                       ],
                     ))
               ]),

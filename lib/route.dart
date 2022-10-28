@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/user_model.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
 import 'package:garbage_mng/ui/screens/add_waste_item.dart';
+import 'package:garbage_mng/ui/screens/checkout.dart';
 import 'package:garbage_mng/ui/screens/edit_org_details.dart';
 import 'package:garbage_mng/ui/screens/home.dart';
 import 'package:garbage_mng/ui/screens/login.dart';
@@ -40,6 +41,8 @@ class RouteGenerator {
             builder: (_) => EditOrganisationDetails(
                   editOrganisation: org,
                 ));
+      case '/checkout':
+        return MaterialPageRoute(builder: (_) => const CheckoutPage());
       case '/orders':
         return MaterialPageRoute(builder: (_) => const OrdersPage());
       // case '/second':

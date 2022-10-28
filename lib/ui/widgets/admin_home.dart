@@ -40,82 +40,27 @@ class AdminHome extends StatelessWidget {
               onTap: () {
                 goToCallback(2);
               }),
-          GestureDetector(
-            onTap: () {
-              // goTo(2);
-            },
-            child: const Card(
-              elevation: 8,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.person,
-                    color: Colors.amber,
-                  ),
-                  title: Text('220 Users'),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              // goTo(3);
-            },
-            child: const Card(
-              elevation: 8,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.apartment,
-                    color: Colors.lightGreen,
-                  ),
-                  title: Text('45 Organisations'),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              // goTo(1);
-            },
-            child: const Card(
-              elevation: 8,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.delete,
-                    color: Colors.green,
-                  ),
-                  title: Text('453 Waste Items'),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              // goTo(0);
-            },
-            child: const Card(
-              elevation: 8,
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  leading: Icon(
-                    Icons.file_present,
-                    color: Colors.blue,
-                  ),
-                  title: Text('112 Orders'),
-                  trailing: Icon(Icons.arrow_forward_ios),
-                ),
-              ),
-            ),
-          ),
+          AdminHomeCard(
+              title: '45 Organisations',
+              icon: Icons.apartment,
+              color: Colors.lightGreen,
+              onTap: () {
+                goToCallback(3);
+              }),
+          AdminHomeCard(
+              title: '453 Waste Items',
+              icon: Icons.delete,
+              color: Colors.green,
+              onTap: () {
+                goToCallback(1);
+              }),
+          AdminHomeCard(
+              title: '112 Orders',
+              icon: Icons.file_present,
+              color: Colors.blue,
+              onTap: () {
+                goToCallback(4);
+              }),
         ],
       ),
     );
