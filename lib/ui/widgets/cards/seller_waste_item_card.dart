@@ -16,15 +16,18 @@ class SellerWasteItemCard extends StatefulWidget {
 }
 
 class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
-  String imgPath = 'https://img.icons8.com/fluency/96/000000/waste--v1.png';
+  String? storageImgURL;
 
   @override
   void initState() {
-    // FirebaseStorage.instance.ref().child('files/waste_item_${widget.item.id}').getDownloadURL().then((value) {
-    //   imgPath = value;
-    //   print(value);
-    // });
     super.initState();
+    FirebaseStorage.instance.ref().child('files/waste_item_${widget.item.id}').getDownloadURL().then((value) {
+      setState(() {
+        storageImgURL = value;
+      });
+    }).catchError((err) {
+      print(err);
+    });
   }
 
   @override
@@ -36,9 +39,11 @@ class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
           Row(children: [
             Expanded(
                 flex: 1,
-                child: FadeInImage(
-                  image: NetworkImage(imgPath),
-                  placeholder: AssetImage(imageURL[widget.item.type] ?? defaultImg),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: storageImgURL == null
+                      ? Image.asset(imageURL[widget.item.type] ?? defaultImg)
+                      : Image.network(storageImgURL!),
                 )),
             Expanded(
                 flex: 3,

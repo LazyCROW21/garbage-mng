@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
@@ -23,7 +21,9 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
   void initState() {
     super.initState();
     fileStorage.child('files/waste_item_${widget.wasteItem.id}').getDownloadURL().then((value) {
-      downloadURL = value;
+      setState(() {
+        downloadURL = value;
+      });
     }).catchError((err) {
       print(err);
     });
@@ -42,14 +42,8 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
             Container(
               margin: const EdgeInsets.all(8.0),
               child: downloadURL != null
-                  ? FadeInImage(
-                      image: NetworkImage(downloadURL!),
-                      placeholder: AssetImage(imageURL[widget.wasteItem.type] ?? defaultImg),
-                    )
-                  : const SpinKitRing(
-                      color: Colors.lightGreen,
-                      lineWidth: 4,
-                    ),
+                  ? Image.network(downloadURL!)
+                  : Image.asset(imageURL[widget.wasteItem.type] ?? defaultImg),
             ),
             const Expanded(
               child: Divider(

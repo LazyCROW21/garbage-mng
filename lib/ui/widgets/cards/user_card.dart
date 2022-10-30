@@ -14,10 +14,7 @@ class UserCard extends StatelessWidget {
         child: Stack(children: [
           Row(children: [
             Expanded(
-                flex: 1,
-                child: Container(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Image.network('https://img.icons8.com/color/96/000000/test-account.png'))),
+                flex: 1, child: Container(padding: const EdgeInsets.all(8.0), child: Image.asset('assets/images/account.png'))),
             Expanded(
                 flex: 3,
                 child: Column(

@@ -58,7 +58,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
 
   Future pickImage() async {
     try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
+      final image = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 50);
       if (image == null) return;
       setState(() {
         imageFile = File(image.path);
@@ -73,9 +73,10 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
     wasteItemModel.add(wasteItem).then((DocumentReference doc) {
       if (imageFile != null) {
         String path = 'files/waste_item_${doc.id}';
-        FirebaseStorage.instance.ref().child(path).putFile(imageFile!);
-        setState(() {
-          isSaving = false;
+        FirebaseStorage.instance.ref().child(path).putFile(imageFile!).then((p0) {
+          setState(() {
+            isSaving = false;
+          });
         });
       }
       const snackBar = SnackBar(content: Text('Item added'));
@@ -94,9 +95,10 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
     wasteItemModel.doc(widget.editItem!.id).update(wasteItem).then((value) {
       if (imageFile != null) {
         String path = 'files/waste_item_${widget.editItem!.id}';
-        FirebaseStorage.instance.ref().child(path).putFile(imageFile!);
-        setState(() {
-          isSaving = false;
+        FirebaseStorage.instance.ref().child(path).putFile(imageFile!).then((p0) {
+          setState(() {
+            isSaving = false;
+          });
         });
       }
       setState(() {
@@ -148,12 +150,11 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
           key: formKey,
           child: ListView(
             children: [
-              imageFirebaseURL == null
-                  ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
-                  : FadeInImage(
-                      image: NetworkImage(imageFirebaseURL!),
-                      placeholder: AssetImage(imageURL[wasteTypeValue] ?? defaultImg),
-                    ),
+              imageFile != null
+                  ? Image.file(imageFile!)
+                  : (imageFirebaseURL == null
+                      ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
+                      : Image.network(imageFirebaseURL!)),
               TextButton(
                 onPressed: () => pickImage(),
                 child: const Text(

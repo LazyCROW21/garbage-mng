@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const Store(),
           const Users(),
           const Organisations(),
-          const Orders()
+          Orders()
         ]);
         break;
       default:

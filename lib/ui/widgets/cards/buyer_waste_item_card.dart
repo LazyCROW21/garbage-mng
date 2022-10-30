@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,20 @@ class BuyerWasteItemCard extends StatefulWidget {
 }
 
 class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
+  String? storageImgURL;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseStorage.instance.ref().child('files/waste_item_${widget.item.id}').getDownloadURL().then((value) {
+      setState(() {
+        storageImgURL = value;
+      });
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -30,9 +45,11 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
               Row(children: [
                 Expanded(
                     flex: 1,
-                    child: FadeInImage(
-                      image: AssetImage(defaultImg),
-                      placeholder: AssetImage(imageURL[widget.item.type] ?? defaultImg),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: storageImgURL == null
+                          ? Image.asset(imageURL[widget.item.type] ?? defaultImg)
+                          : Image.network(storageImgURL!),
                     )),
                 Expanded(
                     flex: 3,

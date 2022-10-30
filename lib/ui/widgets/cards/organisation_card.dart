@@ -17,7 +17,8 @@ class _OrganisationCardState extends State<OrganisationCard> {
         height: 96,
         child: Stack(children: [
           Row(children: [
-            Expanded(flex: 1, child: Container(padding: const EdgeInsets.all(8.0), child: Image.asset('images/account.png'))),
+            Expanded(
+                flex: 1, child: Container(padding: const EdgeInsets.all(8.0), child: Image.asset('assets/images/account.png'))),
             Expanded(
                 flex: 3,
                 child: Column(
