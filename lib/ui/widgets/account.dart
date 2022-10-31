@@ -84,7 +84,7 @@ class _AccountState extends State<Account> {
               Expanded(
                 child: ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).pushReplacementNamed('/login');
+                      Navigator.of(context).pushNamedAndRemoveUntil('/login', (_) => false);
                     },
                     style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(Colors.white),

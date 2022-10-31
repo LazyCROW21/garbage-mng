@@ -34,10 +34,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     tabController.animateTo(index);
   }
 
-  String getCartSize() {
-    return '${context.watch<Cart>().cart.length}';
-  }
-
   Widget? getFloatingActionButton() {
     switch (AuthService.user!.type) {
       case 'seller':

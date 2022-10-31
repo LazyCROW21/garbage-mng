@@ -13,6 +13,10 @@ class WasteItemModel {
     required this.type,
   });
 
+  Map<String, dynamic> toMap() {
+    return {'id': id, 'sellerId': sellerId, 'title': title, 'description': description, 'type': type};
+  }
+
   static WasteItemModel fromJSON(Map<String, dynamic> data) => WasteItemModel(
       id: data['id'], sellerId: data['sellerId'], title: data['title'], description: data['description'], type: data['type']);
 }

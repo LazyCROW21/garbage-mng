@@ -29,6 +29,30 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
     });
   }
 
+  removeItem() {
+    setState(() {
+      context.read<Cart>().removeFromCart(widget.item.id);
+    });
+  }
+
+  addItem() {
+    setState(() {
+      context.read<Cart>().addToCart(widget.item);
+    });
+  }
+
+  incrementQty() {
+    setState(() {
+      context.read<Cart>().incrementQty(widget.item.id);
+    });
+  }
+
+  decrementQty() {
+    setState(() {
+      context.read<Cart>().decrementQty(widget.item.id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -80,11 +104,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 12.0),
                               child: ElevatedButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      context.read<Cart>().removeFromCart(widget.item.id);
-                                    });
-                                  },
+                                  onPressed: removeItem,
                                   style: ButtonStyle(
                                       backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
                                       shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
@@ -104,40 +124,25 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                             child: IconButton(
                                 color: Colors.red,
                                 iconSize: 36,
-                                onPressed: () {
-                                  setState(() {
-                                    context.read<Cart>().decrementQty(widget.item.id);
-                                  });
-                                },
+                                onPressed: decrementQty,
                                 icon: const Icon(Icons.remove_circle)),
                           ),
                           Expanded(
                               flex: 1,
                               child: Text(
-                                '${context.watch<Cart>().cart[widget.item.id]}',
+                                '${context.watch<Cart>().cart[widget.item.id]!['qty']}',
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(fontSize: 14),
                               )),
                           Expanded(
                             flex: 1,
                             child: IconButton(
-                                color: Colors.green,
-                                iconSize: 36,
-                                onPressed: () {
-                                  setState(() {
-                                    context.read<Cart>().incrementQty(widget.item.id);
-                                  });
-                                },
-                                icon: const Icon(Icons.add_circle)),
+                                color: Colors.green, iconSize: 36, onPressed: incrementQty, icon: const Icon(Icons.add_circle)),
                           )
                         ],
                       )
                     : ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            context.read<Cart>().addToCart(widget.item.id);
-                          });
-                        },
+                        onPressed: addItem,
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(Colors.white),
                             shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(

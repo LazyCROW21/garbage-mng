@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/models/waste_item_model.dart';
 
 class Cart with ChangeNotifier {
-  final Map<String, int> _cart = {};
+  final Map<String, Map<String, dynamic>> _cart = {};
 
-  Map<String, int> get cart => _cart;
+  Map<String, Map<String, dynamic>> get cart => _cart;
 
-  void addToCart(String id) {
-    _cart[id] = 1;
+  void addToCart(WasteItemModel item) {
+    _cart[item.id] = {};
+    _cart[item.id]!['item'] = item;
+    _cart[item.id]!['qty'] = 1;
     notifyListeners();
   }
 
@@ -16,14 +19,19 @@ class Cart with ChangeNotifier {
   }
 
   void incrementQty(String id) {
-    _cart[id] = _cart[id]! + 1;
+    _cart[id]!['qty'] = _cart[id]!['qty']! + 1;
     notifyListeners();
   }
 
   void decrementQty(String id) {
-    if (_cart[id]! > 1) {
-      _cart[id] = _cart[id]! - 1;
+    if (_cart[id]!['qty']! > 1) {
+      _cart[id]!['qty'] = _cart[id]!['qty']! - 1;
     }
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _cart.clear();
     notifyListeners();
   }
 }

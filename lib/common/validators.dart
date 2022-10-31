@@ -39,3 +39,12 @@ String? priceValidator(String? inp) {
   }
   return null;
 }
+
+String? addressValidator(String? inp) {
+  if (inp == null) {
+    return 'Address is required';
+  } else if (inp.length < 3 || inp.length > 256) {
+    return 'Address must be 3 to 256 characters';
+  }
+  return null;
+}

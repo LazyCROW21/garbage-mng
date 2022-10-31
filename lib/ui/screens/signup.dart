@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
@@ -54,10 +55,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
         isLoginningIn = false;
       });
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+        Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       setState(() {
         isLoginningIn = false;
       });

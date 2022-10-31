@@ -112,7 +112,7 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
                       Expanded(
                           flex: 1,
                           child: Text(
-                            '${context.watch<Cart>().cart[widget.wasteItem.id]}',
+                            '${context.watch<Cart>().cart[widget.wasteItem.id]!['qty']}',
                             textAlign: TextAlign.center,
                           )),
                       Expanded(
@@ -132,7 +132,7 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
                 : ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        context.read<Cart>().addToCart(widget.wasteItem.id);
+                        context.read<Cart>().addToCart(widget.wasteItem);
                       });
                     },
                     style: ButtonStyle(

@@ -1,8 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:garbage_mng/models/waste_item_model.dart';
+import 'package:garbage_mng/common/validators.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
+import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/cards/buyer_waste_item_card.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -15,24 +16,25 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  CollectionReference wasteItemsCollection = FirebaseFirestore.instance.collection('wasteItems');
+  CollectionReference orderCollection = FirebaseFirestore.instance.collection('orders');
   DateTime? orderDateTime;
-  bool isConfirmed = true;
+  bool isConfirmed = false;
+  bool isConfirming = false;
 
-  Future<List<Widget>> renderCartItems(Map<String, int> cart) async {
+  Map<String, dynamic> orderDetails = {};
+
+  List<Widget> renderCartItems(Map<String, Map<String, dynamic>> cart) {
     List<Widget> items = [];
     for (String id in cart.keys) {
-      var doc = await wasteItemsCollection.doc(id).get();
-      var data = doc.data()! as Map<String, dynamic>;
-      data['id'] = id;
-      print(data);
-      items.add(BuyerWasteItemCard(WasteItemModel.fromJSON(data)));
+      items.add(BuyerWasteItemCard(cart[id]!['item']));
     }
     return items;
   }
 
   @override
   void initState() {
+    orderDetails['buyer'] = AuthService.user!.toMap();
+    orderDetails['buyerId'] = AuthService.user!.id;
     super.initState();
   }
 
@@ -69,7 +71,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Center(child: SizedBox(height: 128, width: 128, child: Image.asset('images/truck.png'))),
+                  Center(child: SizedBox(height: 128, width: 128, child: Image.asset('assets/images/truck.png'))),
                   const Text(
                     'Order Confirmed',
                     textAlign: TextAlign.center,
@@ -122,9 +124,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       SizedBox(
                         width: 256,
                         child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacementNamed('/login');
-                            },
+                            onPressed: () {},
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(Colors.white),
                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
@@ -142,7 +142,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   Expanded(child: Container()),
                   ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.of(context).pushNamedAndRemoveUntil('/home', (_) => false);
+                      },
                       style: ButtonStyle(
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18.0),
@@ -158,27 +160,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
               )
             : ListView(
                 children: [
-                  FutureBuilder(
-                      future: renderCartItems(context.watch<Cart>().cart),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done) {
-                          return Column(
-                            children: snapshot.data ?? const [Text('Error')],
-                          );
-                        } else {
-                          return const Padding(
-                            padding: EdgeInsets.all(12.0),
-                            child: SpinKitRing(color: Colors.lightGreen, lineWidth: 4),
-                          );
-                        }
-                      }),
+                  ...renderCartItems(context.watch<Cart>().cart),
                   const SizedBox(
                     height: 12,
                   ),
                   TextFormField(
+                    autofocus: true,
                     initialValue: '',
                     maxLines: 4,
                     decoration: const InputDecoration(labelText: 'Address', hintText: 'Enter your address here..'),
+                    onChanged: (value) {
+                      orderDetails['address'] = value;
+                    },
+                    autovalidateMode: AutovalidateMode.always,
+                    validator: addressValidator,
                   ),
                   const SizedBox(
                     height: 12,
@@ -193,25 +188,83 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           style: const TextStyle(fontSize: 16),
                         ),
                       )),
+                  orderDateTime == null
+                      ? const Text(
+                          'Date & Time is required',
+                          style: TextStyle(color: Colors.red),
+                        )
+                      : const SizedBox.shrink(),
                   const SizedBox(
                     height: 12,
                   ),
                   ElevatedButton(
-                      onPressed: () {},
+                      onPressed: confirmOrder,
                       style: ButtonStyle(
                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18.0),
                       ))),
-                      child: const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          'Confirm Order',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ))
+                      child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              isConfirming
+                                  ? const Padding(
+                                      padding: EdgeInsets.only(right: 8.0),
+                                      child: SpinKitRing(
+                                        color: Colors.white,
+                                        lineWidth: 2,
+                                        size: 18.0,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                              const Text(
+                                'Confirm Order',
+                                style: TextStyle(color: Colors.white, fontSize: 16),
+                              ),
+                            ],
+                          )))
                 ],
               ),
       ),
     );
+  }
+
+  void confirmOrder() {
+    if (context.read<Cart>().cart.isEmpty) {
+      const snackBar = SnackBar(content: Text('Cart Empty'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      return;
+    }
+    if (addressValidator(orderDetails['address']) != null || orderDateTime == null) {
+      return;
+    }
+    setState(() {
+      isConfirming = true;
+    });
+
+    List<Map<String, dynamic>> items = [];
+    context.read<Cart>().cart.forEach((key, value) {
+      items.add({'item': value['item'].toMap(), 'qty': value['qty']});
+    });
+    print(items);
+    orderDetails['items'] = items;
+    orderDetails['pickupDateTime'] = orderDateTime;
+
+    orderCollection.add(orderDetails).then((value) {
+      setState(() {
+        isConfirmed = true;
+        isConfirming = false;
+        context.read<Cart>().clearCart();
+      });
+    }).catchError((err) {
+      print(err);
+      setState(() {
+        context.read<Cart>().clearCart();
+        isConfirming = false;
+      });
+      const snackBar = SnackBar(content: Text('Something went wrong!'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
   }
 }
