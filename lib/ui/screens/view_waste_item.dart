@@ -1,4 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,9 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
         downloadURL = value;
       });
     }).catchError((err) {
-      print(err);
+      if (kDebugMode) {
+        print(err);
+      }
     });
   }
 

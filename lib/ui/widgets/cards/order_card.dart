@@ -12,9 +12,9 @@ class OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Image.asset(imageURL[_orderItemModel.type] ?? defaultImg),
-      title: Text(_orderItemModel.title),
-      subtitle: Text(_orderItemModel.seller),
+      leading: Image.asset(imageURL[_orderItemModel.item.type] ?? defaultImg),
+      title: Text(_orderItemModel.item.title),
+      subtitle: Text('Type: ${_orderItemModel.item.type}'),
       trailing: Column(
         children: [const Text('QTY'), Text('${_orderItemModel.qty}')],
       ),

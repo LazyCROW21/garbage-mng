@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -98,7 +99,9 @@ class _EditOrganisationDetailsState extends State<EditOrganisationDetails> {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
       setState(() {
         isSaving = false;
       });

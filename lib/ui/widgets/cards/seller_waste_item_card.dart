@@ -1,4 +1,5 @@
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
 import 'package:garbage_mng/common/assets_map.dart';
@@ -26,7 +27,9 @@ class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
         storageImgURL = value;
       });
     }).catchError((err) {
-      print(err);
+      if (kDebugMode) {
+        print(err);
+      }
     });
   }
 

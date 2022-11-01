@@ -1,24 +1,11 @@
+import 'package:garbage_mng/models/waste_item_model.dart';
+
 class OrderItemModel {
-  String id;
-  String title;
-  String description;
-  String type;
+  WasteItemModel item;
   int qty;
-  String seller;
 
-  OrderItemModel(
-      {required this.id,
-      required this.seller,
-      required this.qty,
-      required this.title,
-      required this.description,
-      required this.type});
+  OrderItemModel({required this.item, required this.qty});
 
-  static OrderItemModel fromJSON(Map<String, dynamic> data) => OrderItemModel(
-      id: data['id'],
-      seller: data['seller'],
-      qty: data['qty'],
-      title: data['title'],
-      description: data['description'],
-      type: data['type']);
+  static OrderItemModel fromJSON(Map<String, dynamic> data) =>
+      OrderItemModel(item: WasteItemModel.fromJSON(data['item']), qty: data['qty']);
 }

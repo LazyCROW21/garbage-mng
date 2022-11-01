@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/common/validators.dart';
@@ -18,7 +19,10 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   CollectionReference orderCollection = FirebaseFirestore.instance.collection('orders');
   DateTime? orderDateTime;
+  String orderId = '';
   bool isConfirmed = false;
+  bool isCancelling = false;
+  bool isRescheduling = false;
   bool isConfirming = false;
 
   Map<String, dynamic> orderDetails = {};
@@ -35,6 +39,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   void initState() {
     orderDetails['buyer'] = AuthService.user!.toMap();
     orderDetails['buyerId'] = AuthService.user!.id;
+    orderDetails['status'] = 'placed';
     super.initState();
   }
 
@@ -59,6 +64,80 @@ class _CheckoutPageState extends State<CheckoutPage> {
     setState(() {
       orderDateTime = DateTime(newDate.year, newDate.month, newDate.day, newTime.hour, newTime.minute);
     });
+  }
+
+  cancelOrder() {
+    setState(() {
+      isCancelling = true;
+    });
+    orderCollection.doc(orderId).update({'status': 'cancelled'}).then((value) {
+      setState(() {
+        isCancelling = false;
+      });
+      Navigator.of(context).pushNamedAndRemoveUntil('/home', (route) => false);
+      Navigator.of(context).pushNamed('/orders');
+      const snackBar = SnackBar(content: Text('Order cancelled'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }).catchError((err) {
+      if (kDebugMode) {
+        print(err);
+      }
+      setState(() {
+        isCancelling = false;
+      });
+      const snackBar = SnackBar(content: Text('Error in cancelling'));
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  onReschedule() async {
+    await pickDateTime(context);
+    try {
+      setState(() {
+        isRescheduling = true;
+      });
+      await orderCollection.doc(orderId).update({'pickupDateTime': orderDateTime});
+      if (mounted) {
+        const snackBar = SnackBar(content: Text('Order rescheduled'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    } catch (err) {
+      if (kDebugMode) {
+        print(err);
+      }
+      if (mounted) {
+        const snackBar = SnackBar(content: Text('Error in rescheduling'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
+    setState(() {
+      isRescheduling = false;
+    });
+  }
+
+  onCancelOrder() {
+    showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+              title: const Text('Confirm cancellation?'),
+              content: const Text('Are you sure you want to cancel this order?'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, 'Confirm');
+                    cancelOrder();
+                  },
+                  child: const Text(
+                    'Confirm',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ),
+              ],
+            ));
   }
 
   @override
@@ -98,18 +177,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       SizedBox(
                         width: 256,
                         child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: onReschedule,
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(Colors.white),
                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                   side: const BorderSide(color: Colors.lightGreen),
                                   borderRadius: BorderRadius.circular(18.0),
                                 ))),
-                            child: const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 8.0),
-                              child: Text(
-                                'Reschedule',
-                                style: TextStyle(color: Colors.lightGreen),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  isCancelling
+                                      ? const Padding(
+                                          padding: EdgeInsets.only(right: 8.0),
+                                          child: SpinKitRing(
+                                            color: Colors.lightGreen,
+                                            lineWidth: 2,
+                                            size: 18.0,
+                                          ),
+                                        )
+                                      : const SizedBox.shrink(),
+                                  const Text(
+                                    'Reschedule',
+                                    style: TextStyle(color: Colors.lightGreen),
+                                  ),
+                                ],
                               ),
                             )),
                       ),
@@ -124,18 +218,33 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       SizedBox(
                         width: 256,
                         child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: onCancelOrder,
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(Colors.white),
                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                   side: const BorderSide(color: Colors.red),
                                   borderRadius: BorderRadius.circular(18.0),
                                 ))),
-                            child: const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Text(
-                                  'Cancel Order',
-                                  style: TextStyle(color: Colors.red),
+                            child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    isCancelling
+                                        ? const Padding(
+                                            padding: EdgeInsets.only(right: 8.0),
+                                            child: SpinKitRing(
+                                              color: Colors.red,
+                                              lineWidth: 2,
+                                              size: 18.0,
+                                            ),
+                                          )
+                                        : const SizedBox.shrink(),
+                                    const Text(
+                                      'Cancel Order',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
                                 ))),
                       ),
                     ],
@@ -247,7 +356,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
     context.read<Cart>().cart.forEach((key, value) {
       items.add({'item': value['item'].toMap(), 'qty': value['qty']});
     });
-    print(items);
     orderDetails['items'] = items;
     orderDetails['pickupDateTime'] = orderDateTime;
 
@@ -257,8 +365,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
         isConfirming = false;
         context.read<Cart>().clearCart();
       });
+      orderId = value.id;
     }).catchError((err) {
-      print(err);
+      if (kDebugMode) {
+        print(err);
+      }
       setState(() {
         context.read<Cart>().clearCart();
         isConfirming = false;

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -50,7 +51,9 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
           imageFirebaseURL = value;
         });
       }).catchError((err) {
-        print(err);
+        if (kDebugMode) {
+          print(err);
+        }
       });
     }
     super.initState();
@@ -64,8 +67,9 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
         imageFile = File(image.path);
       });
     } on PlatformException catch (e) {
-      print('Permission denied');
-      print(e);
+      if (kDebugMode) {
+        print(e);
+      }
     }
   }
 
