@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/models/order_item_model.dart';
@@ -50,15 +51,15 @@ class _OrderDetailsState extends State<OrderDetails> {
     return color;
   }
 
-  cancelOrder() {
+  changeOrderStatus(String status) {
     setState(() {
       isCancelling = true;
     });
-    orderCollection.doc(widget._orderModel.id).update({'status': 'cancelled'}).then((value) {
+    orderCollection.doc(widget._orderModel.id).update({'status': status}).then((value) {
       setState(() {
         isCancelling = false;
       });
-      const snackBar = SnackBar(content: Text('Order Cancelled'));
+      SnackBar snackBar = SnackBar(content: Text('Order $status'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }).catchError((err) {
       if (kDebugMode) {
@@ -67,7 +68,7 @@ class _OrderDetailsState extends State<OrderDetails> {
       setState(() {
         isCancelling = false;
       });
-      const snackBar = SnackBar(content: Text('Error in Cancelling'));
+      SnackBar snackBar = SnackBar(content: Text('Error in $status'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
@@ -134,7 +135,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         TextButton(
           onPressed: () {
             Navigator.pop(context, 'Confirm');
-            cancelOrder();
+            changeOrderStatus('cancelled');
           },
           child: const Text(
             'Confirm',
@@ -156,7 +157,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         TextButton(
           onPressed: () {
             Navigator.pop(context, 'Drop');
-            cancelOrder();
+            changeOrderStatus('cancelled');
           },
           child: const Text(
             'Drop',
@@ -166,7 +167,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         TextButton(
           onPressed: () {
             Navigator.pop(context, 'Confirm');
-            cancelOrder();
+            changeOrderStatus('confirmed');
           },
           child: const Text(
             'Confirm',
@@ -176,7 +177,7 @@ class _OrderDetailsState extends State<OrderDetails> {
         TextButton(
           onPressed: () {
             Navigator.pop(context, 'Delivered');
-            cancelOrder();
+            changeOrderStatus('delivered');
           },
           child: const Text(
             'Delivered',
@@ -201,9 +202,29 @@ class _OrderDetailsState extends State<OrderDetails> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Divider(
-          thickness: 4,
-        ),
+        AuthService.user!.type == 'admin'
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Divider(
+                    thickness: 4,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: RichText(
+                        text: TextSpan(text: 'Order by ', style: TextStyle(color: Colors.grey[600]), children: [
+                      TextSpan(text: '${widget._orderModel.buyer.fullName} ', style: const TextStyle(color: Colors.black)),
+                      TextSpan(
+                          recognizer: TapGestureRecognizer()..onTap = () {},
+                          text: '(${widget._orderModel.buyer.phone})',
+                          style: TextStyle(color: Colors.blue[600]))
+                    ])),
+                  ),
+                ],
+              )
+            : const Divider(
+                thickness: 4,
+              ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -211,13 +232,17 @@ class _OrderDetailsState extends State<OrderDetails> {
                 onLongPress: onReschedule,
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
-                  child: Text('Order on $formatted'),
+                  child: RichText(
+                    text: TextSpan(
+                        text: 'Order on ',
+                        style: TextStyle(color: Colors.grey[600]),
+                        children: [TextSpan(text: formatted, style: const TextStyle(color: Colors.black))]),
+                  ),
                 )),
             InkWell(
               onLongPress: onCancelOrder,
               child: Container(
                   padding: const EdgeInsets.all(4),
-                  // color: getStatusColor(_orderModel.status),
                   decoration:
                       BoxDecoration(color: getStatusColor(widget._orderModel.status), borderRadius: BorderRadius.circular(4)),
                   child: Row(

@@ -19,9 +19,7 @@ class _OrganisationsState extends State<Organisations> {
       children: snapshot.data!.docs.map((DocumentSnapshot document) {
         Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
         data['id'] = document.id;
-        return OrganisationCard(
-          UserModel.fromJSON(data),
-        );
+        return OrganisationCard(UserModel.fromJSON(data));
       }).toList(),
     );
   }

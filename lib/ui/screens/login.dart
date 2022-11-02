@@ -237,7 +237,7 @@ class _StepOneState extends State<StepOne> {
               textAlign: TextAlign.center,
               text: TextSpan(
                   text: 'New to GarBage? ',
-                  style: const TextStyle(color: Colors.black, fontFamily: 'Poppins', fontSize: 16),
+                  style: const TextStyle(color: Colors.black, fontSize: 16),
                   children: <TextSpan>[
                     TextSpan(
                         recognizer: TapGestureRecognizer()
@@ -245,11 +245,7 @@ class _StepOneState extends State<StepOne> {
                             Navigator.pushNamed(context, '/signup');
                           },
                         text: 'Signup now',
-                        style: const TextStyle(
-                            color: Colors.lightBlue,
-                            decoration: TextDecoration.underline,
-                            fontFamily: 'Poppins',
-                            fontSize: 16)),
+                        style: const TextStyle(color: Colors.lightBlue, decoration: TextDecoration.underline, fontSize: 16)),
                   ])),
         ],
       ),

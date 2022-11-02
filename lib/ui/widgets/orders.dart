@@ -24,7 +24,7 @@ class Orders extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: StreamBuilder<QuerySnapshot>(
-          stream: ordersCollection.snapshots(),
+          stream: ordersCollection.orderBy('pickupDateTime', descending: true).snapshots(),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
               return const Padding(

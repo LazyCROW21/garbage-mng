@@ -48,6 +48,7 @@ dependencies:
 
 dev_dependencies:
   flutter_launcher_icons: "^0.10.0"
+  flutter_native_splash: ^2.2.13
   flutter_test:
     sdk: flutter
 
@@ -129,3 +130,7 @@ flutter_icons:
     generate: true
     image_path: "assets/images/icon.png"
     icon_size: 48 # min:48, max:256, default: 48
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/splash_logo.png

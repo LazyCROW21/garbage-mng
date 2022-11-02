@@ -1,30 +1,22 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 typedef GoToCallback = void Function(int index);
 
-class AdminHome extends StatelessWidget {
+class AdminHome extends StatefulWidget {
   final GoToCallback goToCallback;
   const AdminHome({super.key, required this.goToCallback});
 
-  Widget adminHomeCard(String title, IconData icon, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 8,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
-          child: ListTile(
-            leading: Icon(
-              icon,
-              color: Colors.amber,
-            ),
-            title: Text(title),
-            trailing: const Icon(Icons.arrow_forward_ios),
-          ),
-        ),
-      ),
-    );
-  }
+  @override
+  State<AdminHome> createState() => _AdminHomeState();
+}
+
+class _AdminHomeState extends State<AdminHome> {
+  final CollectionReference ordersCollection = FirebaseFirestore.instance.collection('orders');
+
+  final CollectionReference wasteItemsCollection = FirebaseFirestore.instance.collection('wasteItems');
+
+  final CollectionReference usersCollection = FirebaseFirestore.instance.collection('users');
 
   @override
   Widget build(BuildContext context) {
@@ -33,33 +25,65 @@ class AdminHome extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AdminHomeCard(
-              title: '220 Users',
-              icon: Icons.person,
-              color: Colors.amber,
-              onTap: () {
-                goToCallback(2);
+          StreamBuilder<QuerySnapshot<Object?>>(
+              stream: usersCollection.where('type', isEqualTo: 'seller').snapshots(),
+              builder: (context, snapshot) {
+                int count = 0;
+                if (snapshot.hasData) {
+                  count = snapshot.data!.docs.length;
+                }
+                return AdminHomeCard(
+                    title: '$count Users',
+                    icon: Icons.person,
+                    color: Colors.amber,
+                    onTap: () {
+                      widget.goToCallback(2);
+                    });
               }),
-          AdminHomeCard(
-              title: '45 Organisations',
-              icon: Icons.apartment,
-              color: Colors.lightGreen,
-              onTap: () {
-                goToCallback(3);
+          StreamBuilder<QuerySnapshot<Object?>>(
+              stream: usersCollection.where('type', isEqualTo: 'buyer').snapshots(),
+              builder: (context, snapshot) {
+                int count = 0;
+                if (snapshot.hasData) {
+                  count = snapshot.data!.docs.length;
+                }
+                return AdminHomeCard(
+                    title: '$count Organisations',
+                    icon: Icons.apartment,
+                    color: Colors.lightGreen,
+                    onTap: () {
+                      widget.goToCallback(3);
+                    });
               }),
-          AdminHomeCard(
-              title: '453 Waste Items',
-              icon: Icons.delete,
-              color: Colors.green,
-              onTap: () {
-                goToCallback(1);
+          StreamBuilder<QuerySnapshot<Object?>>(
+              stream: wasteItemsCollection.snapshots(),
+              builder: (context, snapshot) {
+                int count = 0;
+                if (snapshot.hasData) {
+                  count = snapshot.data!.docs.length;
+                }
+                return AdminHomeCard(
+                    title: '$count Waste Items',
+                    icon: Icons.delete,
+                    color: Colors.green,
+                    onTap: () {
+                      widget.goToCallback(1);
+                    });
               }),
-          AdminHomeCard(
-              title: '112 Orders',
-              icon: Icons.file_present,
-              color: Colors.blue,
-              onTap: () {
-                goToCallback(4);
+          StreamBuilder<QuerySnapshot<Object?>>(
+              stream: ordersCollection.snapshots(),
+              builder: (context, snapshot) {
+                int count = 0;
+                if (snapshot.hasData) {
+                  count = snapshot.data!.docs.length;
+                }
+                return AdminHomeCard(
+                    title: '$count Orders',
+                    icon: Icons.file_present,
+                    color: Colors.blue,
+                    onTap: () {
+                      widget.goToCallback(4);
+                    });
               }),
         ],
       ),

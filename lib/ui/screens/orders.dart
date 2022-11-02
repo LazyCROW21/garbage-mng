@@ -57,8 +57,14 @@ class _OrdersPageState extends State<OrdersPage> {
             padding: const EdgeInsets.all(8.0),
             child: StreamBuilder<QuerySnapshot>(
                 stream: mode == 'seller'
-                    ? ordersCollection.where('sellers', arrayContains: AuthService.user!.id).snapshots()
-                    : ordersCollection.where('buyerId', isEqualTo: AuthService.user!.id).snapshots(),
+                    ? ordersCollection
+                        .where('sellers', arrayContains: AuthService.user!.id)
+                        .orderBy('pickupDateTime', descending: true)
+                        .snapshots()
+                    : ordersCollection
+                        .where('buyerId', isEqualTo: AuthService.user!.id)
+                        .orderBy('pickupDateTime', descending: true)
+                        .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return const Padding(
