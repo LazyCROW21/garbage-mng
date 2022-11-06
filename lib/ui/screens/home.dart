@@ -173,9 +173,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
         ]);
         break;
       case 'admin':
-        tabController = TabController(length: 5, vsync: this);
-        title.addAll(['Home', 'Store', 'Users', 'Organisations', 'Orders']);
-        actionMenu.addAll([[], [], [], [], []]);
+        tabController = TabController(length: 6, vsync: this);
+        title.addAll(['Home', 'Store', 'Users', 'Organisations', 'Orders', 'Account']);
+        actionMenu.addAll([[], [], [], [], [], []]);
         tabs.addAll([
           homeTab,
           storeTab,
@@ -191,7 +191,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               text: 'Ords',
               icon: Icon(
                 Icons.file_present,
-              ))
+              )),
+          accountTab
         ]);
         screens.addAll([
           AdminHome(
@@ -200,7 +201,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           const Store(),
           const Users(),
           const Organisations(),
-          Orders()
+          Orders(),
+          const Account()
         ]);
         break;
       default:
