@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -16,11 +17,22 @@ class ViewWasteItemScreen extends StatefulWidget {
 
 class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
   String? downloadURL;
+  String sellerName = 'Loading...';
+  String sellerPhone = 'Loading...';
+  CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   Reference fileStorage = FirebaseStorage.instance.ref();
 
   @override
   void initState() {
     super.initState();
+    userCollection.doc(widget.wasteItem.sellerId).get().then((value) {
+      sellerName = (value.data() as Map<String, dynamic>)['fullName'];
+      sellerPhone = (value.data() as Map<String, dynamic>)['phone'];
+    }).catchError((err) {
+      if (kDebugMode) {
+        print(err);
+      }
+    });
     fileStorage.child('files/waste_item_${widget.wasteItem.id}').getDownloadURL().then((value) {
       setState(() {
         downloadURL = value;
@@ -69,6 +81,18 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
             Text('Material: ${widget.wasteItem.type}'),
             const SizedBox(
               height: 12,
+            ),
+            const Text(
+              'Seller:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Name: $sellerName',
+              style: const TextStyle(),
+            ),
+            Text(
+              'Phone: $sellerPhone',
+              style: const TextStyle(),
             ),
             const SizedBox(
               height: 12,

@@ -75,8 +75,16 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: storageImgURL == null
-                          ? Image.asset(imageURL[widget.item.type] ?? defaultImg)
-                          : Image.network(storageImgURL!),
+                          ? Image.asset(
+                              imageURL[widget.item.type] ?? defaultImg,
+                              height: 125,
+                              fit: BoxFit.fitHeight,
+                            )
+                          : Image.network(
+                              storageImgURL!,
+                              height: 125,
+                              fit: BoxFit.fitHeight,
+                            ),
                     )),
                 Expanded(
                     flex: 3,
