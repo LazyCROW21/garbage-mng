@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
@@ -19,6 +21,7 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
   String? downloadURL;
   String sellerName = 'Loading...';
   String sellerPhone = 'Loading...';
+  String sellerAddress = 'Loading...';
   CollectionReference userCollection = FirebaseFirestore.instance.collection('users');
   Reference fileStorage = FirebaseStorage.instance.ref();
 
@@ -26,8 +29,10 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
   void initState() {
     super.initState();
     userCollection.doc(widget.wasteItem.sellerId).get().then((value) {
-      sellerName = (value.data() as Map<String, dynamic>)['fullName'];
-      sellerPhone = (value.data() as Map<String, dynamic>)['phone'];
+      var valueMap = value.data() as Map<String, dynamic>;
+      sellerName = valueMap['fullName'];
+      sellerPhone = valueMap['phone'];
+      sellerAddress = valueMap['address'];
     }).catchError((err) {
       if (kDebugMode) {
         print(err);
@@ -46,6 +51,8 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool isDarkMode = brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buy Waste Item'),
@@ -55,16 +62,19 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
         child: ListView(
           children: [
             Container(
+              height: 480,
               margin: const EdgeInsets.all(8.0),
-              child: downloadURL != null
-                  ? Image.network(downloadURL!)
-                  : Image.asset(imageURL[widget.wasteItem.type] ?? defaultImg),
+              child: InteractiveViewer(
+                constrained: false,
+                child: downloadURL != null
+                    ? Image.network(downloadURL!)
+                    : Image.asset(imageURL[widget.wasteItem.type] ?? defaultImg),
+              ),
             ),
             const Expanded(
               child: Divider(
                 height: 2,
                 thickness: 2,
-                color: Colors.black,
               ),
             ),
             Text(
@@ -82,6 +92,12 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
             const SizedBox(
               height: 12,
             ),
+            Text(
+              'Price: ${widget.wasteItem.price == 0 ? 'Free' : 'Rs. ${widget.wasteItem.price}'}',
+            ),
+            const SizedBox(
+              height: 12,
+            ),
             const Text(
               'Seller:',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -90,8 +106,21 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
               'Name: $sellerName',
               style: const TextStyle(),
             ),
+            RichText(
+              text: TextSpan(text: 'Phone: ', style: const TextStyle(color: Colors.black), children: [
+                TextSpan(
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Uri phoneno = Uri.parse('tel:$sellerPhone');
+                      launchUrl(phoneno);
+                    },
+                  text: sellerPhone,
+                  style: const TextStyle(color: Colors.blue, decoration: TextDecoration.underline),
+                )
+              ]),
+            ),
             Text(
-              'Phone: $sellerPhone',
+              'Address: $sellerAddress',
               style: const TextStyle(),
             ),
             const SizedBox(
@@ -163,7 +192,7 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
                       });
                     },
                     style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.white),
+                        backgroundColor: MaterialStateProperty.all(isDarkMode ? Colors.white : Colors.black),
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                           side: const BorderSide(color: Colors.lightGreen),
                           borderRadius: BorderRadius.circular(18.0),

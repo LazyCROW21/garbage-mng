@@ -53,6 +53,11 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
               children: [
                 FloatingActionButton(
                   onPressed: () {
+                    if (context.read<Cart>().cart.isEmpty) {
+                      const snackBar = SnackBar(content: Text('Cart Empty'));
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      return;
+                    }
                     Navigator.of(context).pushNamed('/checkout');
                   },
                   child: const Icon(Icons.shopping_cart),
@@ -249,11 +254,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
           leading: null,
           title: Text(
             title[tabController.index],
-            style: const TextStyle(color: Colors.lightGreen),
           ),
           actions: actionMenu[tabController.index],
           elevation: 0,
-          backgroundColor: Colors.white,
           centerTitle: true,
         ),
         body: TabBarView(

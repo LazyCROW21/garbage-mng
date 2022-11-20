@@ -8,6 +8,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/common/validators.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
 import 'package:garbage_mng/services/auth.dart';
+import 'package:garbage_mng/services/waste_item.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:garbage_mng/common/assets_map.dart';
 
@@ -20,12 +21,15 @@ class AddWasteItemScreen extends StatefulWidget {
   State<AddWasteItemScreen> createState() => _AddWasteItemScreenState();
 }
 
+enum PriceModel { free, paid }
+
 class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   bool editMode = false;
   File? imageFile;
   String? imageFirebaseURL;
   CollectionReference wasteItemModel = FirebaseFirestore.instance.collection("wasteItems");
-  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': ''};
+  final wasteItem = <String, dynamic>{'title': '', 'description': '', 'type': '', 'price': 0};
+  PriceModel? priceModel = PriceModel.free;
 
   bool isSaving = false, isDeleting = false;
 
@@ -33,7 +37,6 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   String wasteTypeValue = '';
   // List of items in our dropdown menu
   var wasteTypes = ['plastic', 'paper', 'electronic', 'metal'];
-
   @override
   void initState() {
     wasteItem['sellerId'] = AuthService.user!.id;
@@ -74,46 +77,36 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
   }
 
   addWasteItem() {
-    wasteItemModel.add(wasteItem).then((DocumentReference doc) {
-      if (imageFile != null) {
-        String path = 'files/waste_item_${doc.id}';
-        FirebaseStorage.instance.ref().child(path).putFile(imageFile!).then((p0) {
-          setState(() {
-            isSaving = false;
-          });
-        });
-      }
-      const snackBar = SnackBar(content: Text('Item added'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      Navigator.of(context).pop();
-    }).catchError((err) {
+    setState(() {
+      isSaving = true;
+    });
+    WasteItemService.addWasteItem(wasteItem, imageFile).then((value) {
       setState(() {
         isSaving = false;
       });
-      const snackBar = SnackBar(content: Text('Error in saving'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      if (value) {
+        const snackBar = SnackBar(content: Text('Item added'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        Navigator.of(context).pop();
+      } else {
+        const snackBar = SnackBar(content: Text('Error in saving'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
     });
   }
 
   updateWasteItem() {
-    wasteItemModel.doc(widget.editItem!.id).update(wasteItem).then((value) {
-      if (imageFile != null) {
-        String path = 'files/waste_item_${widget.editItem!.id}';
-        FirebaseStorage.instance.ref().child(path).putFile(imageFile!).then((p0) {
-          setState(() {
-            isSaving = false;
-          });
-        });
+    setState(() {
+      isSaving = true;
+    });
+    WasteItemService.updateWasteItem(widget.editItem!.id, wasteItem, imageFile).then((value) {
+      setState(() {
+        isSaving = false;
+      });
+      if (!value) {
+        const snackBar = SnackBar(content: Text('Error in saving'));
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
-      setState(() {
-        isSaving = false;
-      });
-    }).catchError((err) {
-      setState(() {
-        isSaving = false;
-      });
-      const snackBar = SnackBar(content: Text('Error in saving'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
     });
   }
 
@@ -121,12 +114,7 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
     setState(() {
       isDeleting = false;
     });
-    wasteItemModel.doc(widget.editItem!.id).delete().then((value) {
-      String path = 'files/waste_item_${widget.editItem!.id}';
-      FirebaseStorage.instance.ref().child(path).delete();
-      setState(() {
-        isSaving = false;
-      });
+    WasteItemService.removeWasteItem(widget.editItem!.id).then((value) {
       setState(() {
         isDeleting = false;
       });
@@ -142,6 +130,12 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
     });
   }
 
+  onPriceModelChange(PriceModel? value) {
+    setState(() {
+      priceModel = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -152,168 +146,200 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
         padding: const EdgeInsets.all(8.0),
         child: Form(
           key: formKey,
-          child: ListView(
-            children: [
-              imageFile != null
-                  ? Image.file(imageFile!)
-                  : (imageFirebaseURL == null
-                      ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
-                      : Image.network(imageFirebaseURL!)),
-              TextButton(
-                onPressed: () => pickImage(),
-                child: const Text(
-                  'Upload Image',
-                  style: TextStyle(fontSize: 18),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                imageFile != null
+                    ? Image.file(imageFile!)
+                    : (imageFirebaseURL == null
+                        ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
+                        : Image.network(imageFirebaseURL!)),
+                TextButton(
+                  onPressed: () => pickImage(),
+                  child: const Text(
+                    'Upload Image',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              TextFormField(
-                initialValue: widget.editItem == null ? '' : widget.editItem?.title,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: titleValidator,
-                onSaved: (String? inp) {
-                  wasteItem['title'] = inp ?? '';
-                },
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              TextFormField(
-                initialValue: widget.editItem == null ? '' : widget.editItem?.description,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 4,
-                validator: descriptionValidator,
-                onSaved: (String? inp) {
-                  wasteItem['description'] = inp ?? '';
-                },
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              DropdownButtonFormField(
-                decoration: const InputDecoration(labelText: 'Waste Type'),
-                value: wasteTypeValue,
-                items:
-                    wasteTypes.map((String wasteType) => DropdownMenuItem(value: wasteType, child: Text(wasteType))).toList(),
-                icon: const Icon(Icons.keyboard_arrow_down),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    wasteTypeValue = newValue!;
-                  });
-                },
-                onSaved: (String? inp) {
-                  wasteItem['type'] = inp ?? '';
-                },
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              const SizedBox(
-                height: 12,
-              ),
-              ElevatedButton(
-                  onPressed: () {
-                    bool? isValid = formKey.currentState?.validate();
-                    if (isValid == null || isValid == false) {
-                      return;
-                    }
-                    formKey.currentState?.save();
-                    setState(() {
-                      isSaving = true;
-                    });
-                    if (editMode) {
-                      updateWasteItem();
-                    } else {
-                      addWasteItem();
-                    }
+                const SizedBox(
+                  height: 12,
+                ),
+                TextFormField(
+                  initialValue: widget.editItem == null ? '' : widget.editItem?.title,
+                  decoration: const InputDecoration(labelText: 'Title'),
+                  validator: titleValidator,
+                  onSaved: (String? inp) {
+                    wasteItem['title'] = inp ?? '';
                   },
-                  style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18.0),
-                  ))),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        isSaving
-                            ? const Padding(
-                                padding: EdgeInsets.only(right: 8.0),
-                                child: SpinKitRing(
-                                  color: Colors.white,
-                                  lineWidth: 2,
-                                  size: 18.0,
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                        Text(
-                          editMode ? 'Save' : 'Add',
-                          style: const TextStyle(color: Colors.white, fontSize: 18),
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                TextFormField(
+                  initialValue: widget.editItem == null ? '' : widget.editItem?.description,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                  maxLines: 4,
+                  validator: descriptionValidator,
+                  onSaved: (String? inp) {
+                    wasteItem['description'] = inp ?? '';
+                  },
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                DropdownButtonFormField(
+                  decoration: const InputDecoration(labelText: 'Waste Type'),
+                  value: wasteTypeValue,
+                  items:
+                      wasteTypes.map((String wasteType) => DropdownMenuItem(value: wasteType, child: Text(wasteType))).toList(),
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      wasteTypeValue = newValue!;
+                    });
+                  },
+                  onSaved: (String? inp) {
+                    wasteItem['type'] = inp ?? '';
+                  },
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                SizedBox(
+                  height: 40,
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: RadioListTile(
+                        value: PriceModel.free,
+                        groupValue: priceModel,
+                        onChanged: onPriceModelChange,
+                        title: const Text('Free'),
+                      )),
+                      Expanded(
+                        child: RadioListTile(
+                          value: PriceModel.paid,
+                          groupValue: priceModel,
+                          onChanged: onPriceModelChange,
+                          title: const Text('Paid'),
                         ),
-                      ],
-                    ),
-                  )),
-              const SizedBox(
-                height: 12,
-              ),
-              editMode
-                  ? ElevatedButton(
-                      onPressed: () {
-                        showDialog<String>(
-                            context: context,
-                            builder: (BuildContext context) => AlertDialog(
-                                  title: const Text('Confirm delete?'),
-                                  content: const Text('Are you sure you want to delete this item?'),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context, 'Cancel'),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context, 'Delete');
-                                        removeWasteItem();
-                                      },
-                                      child: const Text(
-                                        'Delete',
-                                        style: TextStyle(color: Colors.red),
+                      )
+                    ],
+                  ),
+                ),
+                TextFormField(
+                  enabled: priceModel == PriceModel.paid,
+                  initialValue: widget.editItem == null ? '0' : '${widget.editItem?.price}',
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Price', prefixText: 'Rs.'),
+                  validator: priceValidator,
+                  onSaved: (String? inp) {
+                    wasteItem['price'] = num.tryParse(inp!) ?? 0;
+                  },
+                ),
+                const SizedBox(
+                  height: 12,
+                ),
+                ElevatedButton(
+                    onPressed: () {
+                      bool? isValid = formKey.currentState?.validate();
+                      if (isValid == null || isValid == false) {
+                        return;
+                      }
+                      formKey.currentState?.save();
+                      if (editMode) {
+                        updateWasteItem();
+                      } else {
+                        addWasteItem();
+                      }
+                    },
+                    style: ButtonStyle(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ))),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          isSaving
+                              ? const Padding(
+                                  padding: EdgeInsets.only(right: 8.0),
+                                  child: SpinKitRing(
+                                    color: Colors.white,
+                                    lineWidth: 2,
+                                    size: 18.0,
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
+                          Text(
+                            editMode ? 'Save' : 'Add',
+                            style: const TextStyle(color: Colors.white, fontSize: 18),
+                          ),
+                        ],
+                      ),
+                    )),
+                const SizedBox(
+                  height: 12,
+                ),
+                editMode
+                    ? ElevatedButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                    title: const Text('Confirm delete?'),
+                                    content: const Text('Are you sure you want to delete this item?'),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                                        child: const Text('Cancel'),
                                       ),
-                                    ),
-                                  ],
-                                ));
-                      },
-                      style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all(Colors.white),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
-                            side: const BorderSide(color: Colors.red),
-                            borderRadius: BorderRadius.circular(18.0),
-                          ))),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            isDeleting
-                                ? const Padding(
-                                    padding: EdgeInsets.only(right: 8.0),
-                                    child: SpinKitRing(
-                                      color: Colors.white,
-                                      lineWidth: 2,
-                                      size: 18.0,
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
-                            const Text(
-                              'Remove',
-                              style: TextStyle(color: Colors.red, fontSize: 18),
-                            ),
-                          ],
-                        ),
-                      ))
-                  : const SizedBox.shrink()
-            ],
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context, 'Delete');
+                                          removeWasteItem();
+                                        },
+                                        child: const Text(
+                                          'Delete',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ));
+                        },
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(Colors.white),
+                            shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+                              side: const BorderSide(color: Colors.red),
+                              borderRadius: BorderRadius.circular(18.0),
+                            ))),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              isDeleting
+                                  ? const Padding(
+                                      padding: EdgeInsets.only(right: 8.0),
+                                      child: SpinKitRing(
+                                        color: Colors.white,
+                                        lineWidth: 2,
+                                        size: 18.0,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                              const Text(
+                                'Remove',
+                                style: TextStyle(color: Colors.red, fontSize: 18),
+                              ),
+                            ],
+                          ),
+                        ))
+                    : const SizedBox.shrink()
+              ],
+            ),
           ),
         ),
       ),

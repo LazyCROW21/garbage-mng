@@ -45,8 +45,16 @@ class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   child: storageImgURL == null
-                      ? Image.asset(imageURL[widget.item.type] ?? defaultImg)
-                      : Image.network(storageImgURL!),
+                      ? Image.asset(
+                          imageURL[widget.item.type] ?? defaultImg,
+                          height: 120,
+                          fit: BoxFit.fitHeight,
+                        )
+                      : Image.network(
+                          storageImgURL!,
+                          height: 120,
+                          fit: BoxFit.fitHeight,
+                        ),
                 )),
             Expanded(
                 flex: 3,
@@ -62,6 +70,10 @@ class _SellerWasteItemCardState extends State<SellerWasteItemCard> {
                     ),
                     Text(
                       'Material: ${widget.item.type}',
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    Text(
+                      'Price: ${widget.item.price == 0 ? 'Free' : 'Rs. ${widget.item.price}'}',
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],

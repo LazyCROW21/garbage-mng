@@ -16,6 +16,7 @@ class Store extends StatefulWidget {
 
 class _StoreState extends State<Store> {
   String mode = 'seller';
+  String search = '';
   CollectionReference wasteItemsCollection = FirebaseFirestore.instance.collection('wasteItems');
 
   Map<String, bool> filters = {'plastic': false, 'paper': false, 'electronic': false, 'metal': false};
@@ -31,6 +32,9 @@ class _StoreState extends State<Store> {
         flag = true;
         allowedTypes.add(filter.key);
       }
+    }
+    if (search.isNotEmpty) {
+      query = query.orderBy('title').startAt([search]).endAt(['$search\uf8ff']);
     }
     if (flag) {
       return query.where('type', whereIn: allowedTypes).snapshots();
@@ -81,6 +85,18 @@ class _StoreState extends State<Store> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: TextField(
+            decoration: const InputDecoration(hintText: 'Search item and press Enter'),
+            onSubmitted: ((value) {
+              setState(() {
+                search = value;
+              });
+              print(value);
+            }),
+          ),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [

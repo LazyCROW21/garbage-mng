@@ -28,12 +28,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
         fontFamily: 'Poppins',
         primarySwatch: Colors.lightGreen,
+        dividerColor: Colors.green,
       ),
-      initialRoute: '/login',
+      darkTheme: ThemeData(
+          fontFamily: 'Poppins',
+          dividerColor: Colors.lightGreen,
+          backgroundColor: Colors.black,
+          scaffoldBackgroundColor: Colors.black,
+          colorScheme: const ColorScheme.dark(),
+          iconTheme: const IconThemeData(color: Colors.white),
+          floatingActionButtonTheme:
+              const FloatingActionButtonThemeData(backgroundColor: Colors.green, foregroundColor: Colors.white)),
+      initialRoute: '/home',
       onGenerateRoute: RouteGenerator.generateRoute,
     );
   }

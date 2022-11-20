@@ -14,7 +14,8 @@ class OrderCard extends StatelessWidget {
     return ListTile(
       leading: Image.asset(imageURL[_orderItemModel.item.type] ?? defaultImg),
       title: Text(_orderItemModel.item.title),
-      subtitle: Text('Type: ${_orderItemModel.item.type}'),
+      subtitle: Text(
+          'Type: ${_orderItemModel.item.type} / Price: ${_orderItemModel.item.price == 0 ? 'Free' : _orderItemModel.item.price}'),
       trailing: Column(
         children: [const Text('QTY'), Text('${_orderItemModel.qty}')],
       ),

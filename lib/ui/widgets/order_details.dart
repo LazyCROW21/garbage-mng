@@ -197,6 +197,8 @@ class _OrderDetailsState extends State<OrderDetails> {
 
   @override
   Widget build(BuildContext context) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool isDarkMode = brightness == Brightness.dark;
     final DateFormat formatter = DateFormat('dd-MM-yyyy');
     final String formatted = formatter.format(widget._orderModel.pickupDateTime.toDate());
     return Column(
@@ -213,7 +215,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                     padding: const EdgeInsets.all(4.0),
                     child: RichText(
                         text: TextSpan(text: 'Order by ', style: TextStyle(color: Colors.grey[600]), children: [
-                      TextSpan(text: '${widget._orderModel.buyer.fullName} ', style: const TextStyle(color: Colors.black)),
+                      TextSpan(
+                          text: '${widget._orderModel.buyer.fullName} ',
+                          style: TextStyle(color: isDarkMode ? Colors.white : Colors.black)),
                       TextSpan(
                           recognizer: TapGestureRecognizer()..onTap = () {},
                           text: '(${widget._orderModel.buyer.phone})',
@@ -233,10 +237,9 @@ class _OrderDetailsState extends State<OrderDetails> {
                 child: Padding(
                   padding: const EdgeInsets.all(4.0),
                   child: RichText(
-                    text: TextSpan(
-                        text: 'Order on ',
-                        style: TextStyle(color: Colors.grey[600]),
-                        children: [TextSpan(text: formatted, style: const TextStyle(color: Colors.black))]),
+                    text: TextSpan(text: 'Order on ', style: TextStyle(color: Colors.grey[600]), children: [
+                      TextSpan(text: formatted, style: TextStyle(color: isDarkMode ? Colors.black : Colors.white))
+                    ]),
                   ),
                 )),
             InkWell(

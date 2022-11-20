@@ -142,6 +142,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (context.read<Cart>().cart.isEmpty) {
+      Navigator.of(context).pop();
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Confirm Order')),
       body: Padding(
@@ -275,7 +278,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   ),
                   TextFormField(
                     autofocus: true,
-                    initialValue: '',
+                    initialValue: AuthService.user?.address ?? '',
                     maxLines: 4,
                     decoration: const InputDecoration(labelText: 'Address', hintText: 'Enter your address here..'),
                     onChanged: (value) {
@@ -353,10 +356,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     });
 
     List<Map<String, dynamic>> items = [];
+    List<String> sellers = [];
     context.read<Cart>().cart.forEach((key, value) {
       items.add({'item': value['item'].toMap(), 'qty': value['qty']});
+      sellers.add(value['item'].sellerId);
     });
     orderDetails['items'] = items;
+    orderDetails['sellers'] = sellers;
     orderDetails['pickupDateTime'] = orderDateTime;
 
     orderCollection.add(orderDetails).then((value) {

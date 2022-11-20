@@ -5,8 +5,8 @@ import 'package:garbage_mng/models/user_model.dart';
 typedef CodeSentCallback = Function(String verificationId, int? resendToken);
 
 class AuthService {
-  static UserModel? user =
-      UserModel(id: '5m9FmfGCMuYn9a226yjrLzcjWS02', fullName: 'Soham Amin', phone: '+918488947361', type: 'admin');
+  static UserModel? user = UserModel(
+      id: '5m9FmfGCMuYn9a226yjrLzcjWS02', fullName: 'Soham Amin', phone: '+918488947361', type: 'buyer', address: 'asd');
   static Future<void> sendOTP(String phoneNumber, CodeSentCallback codeSent) {
     return FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phoneNumber,
@@ -37,7 +37,7 @@ class AuthService {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: verificationId, smsCode: smsCode);
     UserCredential userCredential = await auth.signInWithCredential(credential);
     var userCollection = FirebaseFirestore.instance.collection("users");
-    var data = {'fullName': fullName, 'phone': userCredential.user?.phoneNumber ?? phone, 'type': type};
+    var data = {'fullName': fullName, 'phone': userCredential.user?.phoneNumber ?? phone, 'type': type, 'address': ''};
     var newUser = await userCollection.add(data);
     data['id'] = newUser.id;
     AuthService.user = UserModel.fromJSON(data);

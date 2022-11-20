@@ -47,10 +47,8 @@ class _OrdersPageState extends State<OrdersPage> {
             leading: null,
             title: const Text(
               'Orders',
-              style: TextStyle(color: Colors.lightGreen),
             ),
             elevation: 0,
-            backgroundColor: Colors.white,
             centerTitle: true,
           ),
           body: Padding(

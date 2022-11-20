@@ -58,6 +58,8 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
 
   @override
   Widget build(BuildContext context) {
+    var brightness = MediaQuery.of(context).platformBrightness;
+    bool isDarkMode = brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed('/viewWasteItem', arguments: widget.item);
@@ -77,12 +79,12 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                       child: storageImgURL == null
                           ? Image.asset(
                               imageURL[widget.item.type] ?? defaultImg,
-                              height: 125,
+                              height: 120,
                               fit: BoxFit.fitHeight,
                             )
                           : Image.network(
                               storageImgURL!,
-                              height: 125,
+                              height: 120,
                               fit: BoxFit.fitHeight,
                             ),
                     )),
@@ -100,6 +102,10 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                         ),
                         Text(
                           'Material: ${widget.item.type}',
+                          style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        ),
+                        Text(
+                          'Price: ${widget.item.price == 0 ? 'Free' : 'Rs. ${widget.item.price}'}',
                           style: const TextStyle(fontSize: 14, color: Colors.grey),
                         ),
                       ],
@@ -155,7 +161,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                     : ElevatedButton(
                         onPressed: addItem,
                         style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(Colors.white),
+                            backgroundColor: MaterialStateProperty.all(isDarkMode ? Colors.white : Colors.black),
                             shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                               side: const BorderSide(color: Colors.lightGreen),
                               borderRadius: BorderRadius.circular(18.0),
