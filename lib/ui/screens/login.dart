@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/providers/theme_provider.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   String phone = '', firebaseOTPVerificationId = '';
-  int step = 1;
+  int step = 2;
   bool isLoginningIn = false;
 
   @override
@@ -27,6 +29,12 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   onOTPSubmit(String smsCode) async {
+    if (smsCode.isEmpty) {
+      setState(() {
+        step = 1;
+      });
+      return;
+    }
     setState(() {
       isLoginningIn = true;
     });
@@ -119,7 +127,6 @@ class _LoginScreenState extends State<LoginScreen> {
               Expanded(child: Container()),
               const Text(
                 'By signing in you agree to our terms & conditions',
-                style: TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(
@@ -237,7 +244,8 @@ class _StepOneState extends State<StepOne> {
               textAlign: TextAlign.center,
               text: TextSpan(
                   text: 'New to GarBage? ',
-                  style: const TextStyle(color: Colors.black, fontSize: 16),
+                  style:
+                      TextStyle(color: context.watch<ThemeNotifier>().isDarkMode ? Colors.white : Colors.black, fontSize: 16),
                   children: <TextSpan>[
                     TextSpan(
                         recognizer: TapGestureRecognizer()

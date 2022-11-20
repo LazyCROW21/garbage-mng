@@ -210,7 +210,15 @@ class _OTPInputState extends State<OTPInput> {
                     ),
                   ],
                 ),
-              ))
+              )),
+          const SizedBox(
+            height: 8,
+          ),
+          TextButton(
+              onPressed: () {
+                widget.onClick('');
+              },
+              child: const Text('< Go Back'))
         ],
       ),
     );

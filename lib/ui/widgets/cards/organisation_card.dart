@@ -1,3 +1,5 @@
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/user_model.dart';
 
@@ -10,6 +12,22 @@ class OrganisationCard extends StatefulWidget {
 }
 
 class _OrganisationCardState extends State<OrganisationCard> {
+  String? storageImgURL;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseStorage.instance.ref().child('files/user_${widget.data.id}').getDownloadURL().then((value) {
+      setState(() {
+        storageImgURL = value;
+      });
+    }).catchError((err) {
+      if (kDebugMode) {
+        print(err);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -18,9 +36,25 @@ class _OrganisationCardState extends State<OrganisationCard> {
         child: Stack(children: [
           Row(children: [
             Expanded(
-                flex: 1, child: Container(padding: const EdgeInsets.all(8.0), child: Image.asset('assets/images/account.png'))),
+                flex: 2,
+                child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(64),
+                      child: storageImgURL == null
+                          ? Image.asset(
+                              'assets/images/account.png',
+                              height: 128,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              storageImgURL!,
+                              height: 128,
+                              fit: BoxFit.cover,
+                            ),
+                    ))),
             Expanded(
-                flex: 3,
+                flex: 5,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,

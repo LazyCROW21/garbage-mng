@@ -1,10 +1,33 @@
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/models/user_model.dart';
 
-class UserCard extends StatelessWidget {
+class UserCard extends StatefulWidget {
   final UserModel data;
   final Function onDelete;
   const UserCard(this.data, {super.key, required this.onDelete});
+
+  @override
+  State<UserCard> createState() => _UserCardState();
+}
+
+class _UserCardState extends State<UserCard> {
+  String? storageImgURL;
+
+  @override
+  void initState() {
+    super.initState();
+    FirebaseStorage.instance.ref().child('files/user_${widget.data.id}').getDownloadURL().then((value) {
+      setState(() {
+        storageImgURL = value;
+      });
+    }).catchError((err) {
+      if (kDebugMode) {
+        print(err);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,19 +37,35 @@ class UserCard extends StatelessWidget {
         child: Stack(children: [
           Row(children: [
             Expanded(
-                flex: 1, child: Container(padding: const EdgeInsets.all(8.0), child: Image.asset('assets/images/account.png'))),
+                flex: 2,
+                child: Container(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(64),
+                      child: storageImgURL == null
+                          ? Image.asset(
+                              'assets/images/account.png',
+                              height: 128,
+                              fit: BoxFit.cover,
+                            )
+                          : Image.network(
+                              storageImgURL!,
+                              height: 128,
+                              fit: BoxFit.cover,
+                            ),
+                    ))),
             Expanded(
-                flex: 3,
+                flex: 5,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      data.fullName,
+                      widget.data.fullName,
                       style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      data.phone,
+                      widget.data.phone,
                       style: const TextStyle(fontSize: 14, color: Colors.grey),
                     ),
                   ],
@@ -37,7 +76,7 @@ class UserCard extends StatelessWidget {
                 color: Colors.red,
                 icon: const Icon(Icons.delete),
                 onPressed: () {
-                  onDelete();
+                  widget.onDelete();
                 },
               ),
             )

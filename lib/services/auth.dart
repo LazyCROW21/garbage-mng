@@ -6,7 +6,7 @@ typedef CodeSentCallback = Function(String verificationId, int? resendToken);
 
 class AuthService {
   static UserModel? user = UserModel(
-      id: '5m9FmfGCMuYn9a226yjrLzcjWS02', fullName: 'Soham Amin', phone: '+918488947361', type: 'buyer', address: 'asd');
+      id: 'Jt5l82QR9uXigxn7dZ1Al6SRJre2', fullName: 'Soham Amin', phone: '+916355883556', type: 'admin', address: 'address');
   static Future<void> sendOTP(String phoneNumber, CodeSentCallback codeSent) {
     return FirebaseAuth.instance.verifyPhoneNumber(
       phoneNumber: phoneNumber,

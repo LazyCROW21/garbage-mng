@@ -150,11 +150,22 @@ class _AddWasteItemScreenState extends State<AddWasteItemScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                imageFile != null
-                    ? Image.file(imageFile!)
-                    : (imageFirebaseURL == null
-                        ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
-                        : Image.network(imageFirebaseURL!)),
+                GestureDetector(
+                  onTap: () {
+                    if (imageFile == null && imageFirebaseURL == null) {
+                      return;
+                    }
+                    Navigator.of(context).pushNamed('/viewImage', arguments: imageFirebaseURL);
+                  },
+                  child: Hero(
+                    tag: 'imageHero',
+                    child: imageFile != null
+                        ? Image.file(imageFile!)
+                        : (imageFirebaseURL == null
+                            ? Image.asset(imageURL[wasteTypeValue] ?? defaultImg)
+                            : Image.network(imageFirebaseURL!)),
+                  ),
+                ),
                 TextButton(
                   onPressed: () => pickImage(),
                   child: const Text(

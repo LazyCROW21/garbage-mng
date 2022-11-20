@@ -47,6 +47,8 @@ dependencies:
   url_launcher: ^6.0.0
   carousel_slider: ^4.0.0
   smooth_page_indicator: ^1.0.0
+  shared_preferences: ^2.0.7
+
 
 
 

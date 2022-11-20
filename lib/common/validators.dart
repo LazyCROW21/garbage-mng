@@ -57,3 +57,12 @@ String? fullNameValidator(String? inp) {
   }
   return null;
 }
+
+String? phoneValidator(String? inp) {
+  if (inp == null) {
+    return 'Phone is required';
+  } else if (inp.length != 10) {
+    return 'Phone be 3 to 64 characters long';
+  }
+  return null;
+}

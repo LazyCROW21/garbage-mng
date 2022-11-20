@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:garbage_mng/models/user_model.dart';
+import 'package:garbage_mng/providers/theme_provider.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
+import 'package:provider/provider.dart';
 
 class EditOrganisationDetails extends StatefulWidget {
   final UserModel? editOrganisation;
@@ -282,7 +284,8 @@ class _EditOrganisationDetailsState extends State<EditOrganisationDetails> {
                                       ));
                             },
                             style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(Colors.white),
+                                backgroundColor: MaterialStateProperty.all(
+                                    context.watch<ThemeNotifier>().isDarkMode ? Colors.black : Colors.white),
                                 shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                                   side: const BorderSide(color: Colors.red),
                                   borderRadius: BorderRadius.circular(18.0),

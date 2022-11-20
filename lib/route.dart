@@ -5,6 +5,7 @@ import 'package:garbage_mng/ui/screens/add_waste_item.dart';
 import 'package:garbage_mng/ui/screens/checkout.dart';
 import 'package:garbage_mng/ui/screens/edit_org_details.dart';
 import 'package:garbage_mng/ui/screens/home.dart';
+import 'package:garbage_mng/ui/screens/image_preview.dart';
 import 'package:garbage_mng/ui/screens/login.dart';
 import 'package:garbage_mng/ui/screens/orders.dart';
 import 'package:garbage_mng/ui/screens/signup.dart';
@@ -25,6 +26,9 @@ class RouteGenerator {
       case '/viewWasteItem':
         WasteItemModel wasteItem = args as WasteItemModel;
         return MaterialPageRoute(builder: (_) => ViewWasteItemScreen(wasteItem: wasteItem));
+      case '/viewImage':
+        String url = args as String;
+        return MaterialPageRoute(builder: (_) => ImagePreviewScreen(url));
       case '/addWasteItem':
         WasteItemModel? editItem;
         String? wasteType;

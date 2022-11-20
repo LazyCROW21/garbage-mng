@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/providers/theme_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
 import 'package:provider/provider.dart';
@@ -51,8 +52,6 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool isDarkMode = brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buy Waste Item'),
@@ -64,12 +63,13 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
             Container(
               height: 480,
               margin: const EdgeInsets.all(8.0),
-              child: InteractiveViewer(
-                constrained: false,
-                child: downloadURL != null
-                    ? Image.network(downloadURL!)
-                    : Image.asset(imageURL[widget.wasteItem.type] ?? defaultImg),
-              ),
+              child: downloadURL != null
+                  ? GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pushNamed('/viewImage', arguments: downloadURL);
+                      },
+                      child: Hero(tag: 'imageHero', child: Image.network(downloadURL!)))
+                  : Image.asset(imageURL[widget.wasteItem.type] ?? defaultImg),
             ),
             const Expanded(
               child: Divider(
@@ -192,7 +192,8 @@ class _ViewWasteItemScreenState extends State<ViewWasteItemScreen> {
                       });
                     },
                     style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(isDarkMode ? Colors.white : Colors.black),
+                        backgroundColor:
+                            MaterialStateProperty.all(context.watch<ThemeNotifier>().isDarkMode ? Colors.black : Colors.white),
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                           side: const BorderSide(color: Colors.lightGreen),
                           borderRadius: BorderRadius.circular(18.0),

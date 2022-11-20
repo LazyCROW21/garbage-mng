@@ -2,6 +2,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:garbage_mng/providers/cart_provider.dart';
+import 'package:garbage_mng/providers/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:garbage_mng/common/assets_map.dart';
 import 'package:garbage_mng/models/waste_item_model.dart';
@@ -58,8 +59,6 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
 
   @override
   Widget build(BuildContext context) {
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool isDarkMode = brightness == Brightness.dark;
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed('/viewWasteItem', arguments: widget.item);
@@ -97,9 +96,7 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                           widget.item.title,
                           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                         ),
-                        const Divider(
-                          color: Colors.black,
-                        ),
+                        const Divider(),
                         Text(
                           'Material: ${widget.item.type}',
                           style: const TextStyle(fontSize: 14, color: Colors.grey),
@@ -161,7 +158,8 @@ class _BuyerWasteItemCardState extends State<BuyerWasteItemCard> {
                     : ElevatedButton(
                         onPressed: addItem,
                         style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(isDarkMode ? Colors.white : Colors.black),
+                            backgroundColor: MaterialStateProperty.all(
+                                context.watch<ThemeNotifier>().isDarkMode ? Colors.black : Colors.white),
                             shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                               side: const BorderSide(color: Colors.lightGreen),
                               borderRadius: BorderRadius.circular(18.0),

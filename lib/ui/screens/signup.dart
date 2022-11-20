@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:garbage_mng/common/validators.dart';
+import 'package:garbage_mng/providers/theme_provider.dart';
 import 'package:garbage_mng/services/auth.dart';
 import 'package:garbage_mng/ui/widgets/otp_input.dart';
+import 'package:provider/provider.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -45,6 +48,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   onOTPSubmit(String smsCode) async {
+    if (smsCode.isEmpty) {
+      setState(() {
+        step = 1;
+      });
+      return;
+    }
     setState(() {
       isLoginningIn = true;
     });
@@ -90,7 +99,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Text(
                   'Hello!',
                   textAlign: TextAlign.start,
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 32),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
                 ),
               ),
               const Padding(
@@ -98,7 +107,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 child: Text(
                   'Let\'s Introduce',
                   textAlign: TextAlign.start,
-                  style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500, fontSize: 24),
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 24),
                 ),
               ),
               Expanded(child: Container()),
@@ -153,15 +162,6 @@ class _StepOneState extends State<StepOne> {
       return 'Full name is required';
     } else if (inp.length < 3 || inp.length > 64) {
       return 'Full name should be 3 to 64 characters long';
-    }
-    return null;
-  }
-
-  String? phoneValidator(String? inp) {
-    if (inp == null) {
-      return 'Phone is required';
-    } else if (inp.length != 10) {
-      return 'Phone be 3 to 64 characters long';
     }
     return null;
   }
@@ -228,7 +228,8 @@ class _StepOneState extends State<StepOne> {
                       Navigator.of(context).pop();
                     },
                     style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.white),
+                        backgroundColor:
+                            MaterialStateProperty.all(context.watch<ThemeNotifier>().isDarkMode ? Colors.black : Colors.white),
                         shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
                           side: const BorderSide(color: Colors.lightGreen),
                           borderRadius: BorderRadius.circular(18.0),
